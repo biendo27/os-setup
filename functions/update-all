@@ -1,0 +1,90 @@
+update-all() {
+  local had_action=0
+  local needs_sudo=0
+
+  # Pre-authenticate sudo once if any sudo-required managers are present.
+  if (( ${+commands[apt]} || ${+commands[dnf]} || ${+commands[yum]} || ${+commands[zypper]} || ${+commands[apk]} || ${+commands[pacman]} || ${+commands[snap]} )); then
+    needs_sudo=1
+  fi
+  if (( needs_sudo )); then
+    if (( ${+commands[sudo]} )); then
+      echo "==> Sudo authentication required for system package updates"
+      sudo -v || return 1
+    else
+      echo "sudo not found; skipping system package updates that require sudo."
+    fi
+  fi
+
+  if (( ${+commands[apt]} && ${+commands[sudo]} )); then
+    echo "==> Updating apt packages"
+    sudo apt update && sudo apt upgrade -y
+    had_action=1
+  fi
+
+  if (( ${+commands[dnf]} && ${+commands[sudo]} )); then
+    echo "==> Updating dnf packages"
+    sudo dnf upgrade -y
+    had_action=1
+  fi
+
+  if (( ${+commands[yum]} && ${+commands[sudo]} )); then
+    echo "==> Updating yum packages"
+    sudo yum update -y
+    had_action=1
+  fi
+
+  if (( ${+commands[zypper]} && ${+commands[sudo]} )); then
+    echo "==> Updating zypper packages"
+    sudo zypper refresh && sudo zypper update -y
+    had_action=1
+  fi
+
+  if (( ${+commands[apk]} && ${+commands[sudo]} )); then
+    echo "==> Updating apk packages"
+    sudo apk update && sudo apk upgrade
+    had_action=1
+  fi
+
+  if (( ${+commands[paru]} )); then
+    echo "==> Updating paru (AUR) packages"
+    paru -Syu --noconfirm
+    had_action=1
+  elif (( ${+commands[yay]} )); then
+    echo "==> Updating yay (AUR) packages"
+    yay -Syu --noconfirm
+    had_action=1
+  elif (( ${+commands[pacman]} && ${+commands[sudo]} )); then
+    echo "==> Updating pacman packages"
+    sudo pacman -Syu --noconfirm
+    had_action=1
+  fi
+
+  if (( ${+commands[flatpak]} )); then
+    echo "==> Updating Flatpak packages"
+    flatpak update -y
+    had_action=1
+  fi
+
+  if (( ${+commands[snap]} && ${+commands[sudo]} )); then
+    echo "==> Updating Snap packages"
+    sudo snap refresh
+    had_action=1
+  fi
+
+  if (( ${+commands[brew]} )); then
+    echo "==> Updating Homebrew packages"
+    brew update && brew upgrade
+    had_action=1
+  fi
+
+  if (( ${+commands[npm]} )); then
+    echo "==> Updating global npm packages"
+    npm update -g
+    had_action=1
+  fi
+
+  if (( ! had_action )); then
+    echo "No supported package managers found."
+    return 1
+  fi
+}

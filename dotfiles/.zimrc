@@ -1,0 +1,20 @@
+# Core Zim modules for environment and input
+zmodule environment
+zmodule git
+zmodule input
+zmodule termtitle
+zmodule utility
+zmodule olets/zsh-transient-prompt --source transient-prompt.zsh-theme
+
+# Navigation helpers
+zmodule MichaelAquilina/zsh-autoswitch-virtualenv
+
+# Completion modules
+zmodule zsh-users/zsh-completions --fpath src
+zmodule completion
+zmodule Aloxaf/fzf-tab
+
+# Highlighting and Suggestions (Must be initialized last)
+zmodule zsh-users/zsh-history-substring-search
+zmodule zsh-users/zsh-autosuggestions
+zmodule zsh-users/zsh-syntax-highlighting
