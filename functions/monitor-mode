@@ -1,0 +1,415 @@
+monitor-mode() {
+  emulate -L zsh
+  setopt errexit nounset pipefail
+
+  local action="${1:-external}"
+
+  case "$action" in
+    -h|--help|help)
+      cat <<'USAGE'
+Usage: monitor-mode [external|internal|dual|toggle|status|setup|auto]
+
+Modes:
+  external  Use only external monitor(s) and disable laptop panel (default)
+  internal  Use only laptop panel and disable external monitor(s)
+  dual      Use both (external primary, horizontal layout)
+  toggle    Cycle external -> internal -> dual -> external
+  status    Show detected outputs and current mode
+  setup     Apply lid-close power settings (GNOME)
+  auto      Install/start auto-switch service (systemd --user)
+
+Notes:
+- Works on X11 with xrandr.
+- If multiple external monitors are connected, they are placed left-to-right.
+- Set MONITOR_INTERNAL_POSITION=left to place the laptop panel to the left in dual mode.
+- Auto mode switches to external when an external monitor is present, internal when none.
+USAGE
+      return 0
+      ;;
+  esac
+
+  if [[ "$action" == "auto" ]]; then
+    local sub="${2:-on}"
+    local user_systemd_dir="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+    local bin_dir="${XDG_BIN_HOME:-$HOME/.local/bin}"
+    local env_file="${XDG_CONFIG_HOME:-$HOME/.config}/monitor-mode-auto.env"
+
+    _monitor_mode_auto_install() {
+      mkdir -p "$bin_dir" "$user_systemd_dir" "${env_file:h}"
+
+      if [[ ! -f "$env_file" ]]; then
+        cat > "$env_file" <<'ENV'
+MONITOR_AUTO_EXTERNAL_MODE=external
+MONITOR_AUTO_DEBOUNCE_SEC=0.8
+MONITOR_AUTO_STARTUP_DELAY=5
+MONITOR_AUTO_WAIT_SEC=90
+MONITOR_AUTO_EVENT_WAIT_SEC=10
+ENV
+      else
+        if ! rg -q '^MONITOR_AUTO_STARTUP_DELAY=' "$env_file"; then
+          echo 'MONITOR_AUTO_STARTUP_DELAY=5' >> "$env_file"
+        fi
+        if ! rg -q '^MONITOR_AUTO_WAIT_SEC=' "$env_file"; then
+          echo 'MONITOR_AUTO_WAIT_SEC=90' >> "$env_file"
+        fi
+        if ! rg -q '^MONITOR_AUTO_EVENT_WAIT_SEC=' "$env_file"; then
+          echo 'MONITOR_AUTO_EVENT_WAIT_SEC=10' >> "$env_file"
+        fi
+      fi
+
+      cat > "$bin_dir/monitor-mode-auto" <<'SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+
+log() {
+  printf '%s\n' "[monitor-mode-auto] $*"
+}
+
+get_session_id() {
+  loginctl list-sessions --no-legend 2>/dev/null | awk -v user="$USER" '$3==user {print $1; exit}'
+}
+
+get_active_display() {
+  who 2>/dev/null | awk -v user="$USER" '$1==user && $2 ~ /^:[0-9]+$/ {print $2; exit}'
+}
+
+wait_for_x11_session() {
+  local wait_sec="${1:-${MONITOR_AUTO_WAIT_SEC:-90}}"
+  local i=0
+  while (( i < wait_sec )); do
+    local sid
+    sid="$(get_session_id)"
+    if [[ -n "$sid" ]]; then
+      local type active display
+      type="$(loginctl show-session "$sid" -p Type --value 2>/dev/null || true)"
+      active="$(loginctl show-session "$sid" -p Active --value 2>/dev/null || true)"
+      display="$(loginctl show-session "$sid" -p Display --value 2>/dev/null || true)"
+      if [[ "$type" == "x11" && "$active" == "yes" ]]; then
+        if [[ -z "$display" ]]; then
+          display="$(get_active_display)"
+          if [[ -z "$display" ]]; then
+            display="$(who 2>/dev/null | awk -v user="$USER" '$1==user {for(i=1;i<=NF;i++) if($i ~ /^\\(:[0-9]+\\)$/){gsub(/[()]/,"",$i); print $i; exit}}')"
+          fi
+        fi
+        if [[ -n "$display" ]]; then
+          export DISPLAY="$display"
+          export XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
+          return 0
+        fi
+      fi
+    fi
+    sleep 1
+    ((i++))
+  done
+  return 1
+}
+
+wait_for_gnome_shell() {
+  local wait_sec="${1:-${MONITOR_AUTO_WAIT_SEC:-90}}"
+  local i=0
+  while (( i < wait_sec )); do
+    if pgrep -u "$USER" -x gnome-shell >/dev/null 2>&1; then
+      return 0
+    fi
+    sleep 1
+    ((i++))
+  done
+  return 1
+}
+
+get_outputs() {
+  xrandr --query 2>/dev/null | awk '$2=="connected"{print $1}'
+}
+
+has_external() {
+  local out
+  while read -r out; do
+    [[ -z "$out" ]] && continue
+    if [[ "$out" != eDP* && "$out" != LVDS* ]]; then
+      return 0
+    fi
+  done < <(get_outputs)
+  return 1
+}
+
+desired_mode() {
+  local external_mode="${MONITOR_AUTO_EXTERNAL_MODE:-external}"
+  if has_external; then
+    printf '%s\n' "$external_mode"
+  else
+    printf '%s\n' "internal"
+  fi
+}
+
+apply_if_needed() {
+  local want
+  want="$(desired_mode)"
+  if [[ "$want" != "${LAST_MODE:-}" ]]; then
+    log "switch -> $want"
+    local func_file="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions/monitor-mode"
+    if [[ ! -f "$func_file" ]]; then
+      log "missing function file: $func_file"
+      return 1
+    fi
+    if ! zsh -c "source \"$func_file\"; monitor-mode \"$want\""; then
+      log "switch failed for mode: $want"
+      return 1
+    fi
+    LAST_MODE="$want"
+  fi
+}
+
+session_ready() {
+  local wait_sec="${1:-${MONITOR_AUTO_WAIT_SEC:-90}}"
+  if ! wait_for_x11_session "$wait_sec"; then
+    return 1
+  fi
+  if ! wait_for_gnome_shell "$wait_sec"; then
+    return 1
+  fi
+  if ! xrandr --query >/dev/null 2>&1; then
+    return 1
+  fi
+  return 0
+}
+
+main() {
+  local startup_delay="${MONITOR_AUTO_STARTUP_DELAY:-5}"
+  sleep "$startup_delay"
+
+  if session_ready "${MONITOR_AUTO_WAIT_SEC:-90}"; then
+    apply_if_needed || true
+  else
+    log "session not ready; skipping."
+  fi
+
+  local debounce="${MONITOR_AUTO_DEBOUNCE_SEC:-0.8}"
+  if command -v udevadm >/dev/null 2>&1; then
+    udevadm monitor --udev --subsystem-match=drm | while read -r line; do
+      case "$line" in
+        *"change"*|*"bind"*|*"unbind"*)
+          if session_ready "${MONITOR_AUTO_EVENT_WAIT_SEC:-10}"; then
+            sleep "$debounce"
+            apply_if_needed || true
+          fi
+          ;;
+      esac
+    done
+  else
+    while true; do
+      if session_ready "${MONITOR_AUTO_EVENT_WAIT_SEC:-10}"; then
+        apply_if_needed || true
+      fi
+      sleep "$debounce"
+    done
+  fi
+}
+
+main "$@"
+SCRIPT
+      chmod +x "$bin_dir/monitor-mode-auto"
+
+      cat > "$user_systemd_dir/monitor-mode-auto.service" <<'UNIT'
+[Unit]
+Description=Auto switch monitor mode on hotplug
+After=graphical-session.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=%h/.local/bin/monitor-mode-auto
+EnvironmentFile=-%h/.config/monitor-mode-auto.env
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+UNIT
+    }
+
+    case "$sub" in
+      on|enable|start)
+        _monitor_mode_auto_install
+        systemctl --user daemon-reload
+        systemctl --user enable --now monitor-mode-auto.service
+        echo "Auto switch enabled."
+        ;;
+      off|disable|stop)
+        systemctl --user disable --now monitor-mode-auto.service
+        echo "Auto switch disabled."
+        ;;
+      status)
+        systemctl --user status --no-pager monitor-mode-auto.service
+        ;;
+      log|logs)
+        journalctl --user -u monitor-mode-auto.service --no-pager -n 200
+        ;;
+      install)
+        _monitor_mode_auto_install
+        systemctl --user daemon-reload
+        echo "Auto switch installed."
+        ;;
+      *)
+        echo "Unknown auto action: $sub" >&2
+        return 1
+        ;;
+    esac
+    return 0
+  fi
+
+  if [[ "$action" == "setup" ]]; then
+    if ! command -v gsettings >/dev/null 2>&1; then
+      echo "gsettings not found." >&2
+      return 1
+    fi
+    gsettings set org.gnome.settings-daemon.plugins.power lid-close-ac-action 'nothing'
+    gsettings set org.gnome.settings-daemon.plugins.power lid-close-battery-action 'suspend'
+    gsettings set org.gnome.settings-daemon.plugins.power lid-close-suspend-with-external-monitor false
+    echo "OK: lid close on AC = nothing, on battery = suspend, no suspend with external monitor."
+    return 0
+  fi
+
+  if [[ "${XDG_SESSION_TYPE:-}" != "x11" ]]; then
+    echo "This function currently supports X11 only (XDG_SESSION_TYPE=x11)." >&2
+    return 1
+  fi
+  if ! command -v xrandr >/dev/null 2>&1; then
+    echo "xrandr not found. Install it or switch to an X11 session." >&2
+    return 1
+  fi
+
+  local -a outputs externals active
+  outputs=("${(@f)$(xrandr --query | awk '$2=="connected"{print $1}')}" )
+  if (( ${#outputs[@]} == 0 )); then
+    echo "No connected outputs found." >&2
+    return 1
+  fi
+
+  local internal=""
+  for out in "${outputs[@]}"; do
+    if [[ "$out" == eDP* || "$out" == LVDS* ]]; then
+      internal="$out"
+    else
+      externals+=("$out")
+    fi
+  done
+
+  active=("${(@f)$(xrandr --query | awk '$2=="connected"{for(i=3;i<=NF;i++){if($i ~ /^[0-9]+x[0-9]+\+/){print $1; break}}}')}" )
+
+  if [[ "$action" == "status" ]]; then
+    local internal_active=0 external_active=0
+    if [[ -n "$internal" && ${active[(I)$internal]} -gt 0 ]]; then
+      internal_active=1
+    fi
+    for out in "${externals[@]}"; do
+      if (( ${active[(I)$out]} )); then
+        external_active=1
+        break
+      fi
+    done
+    local mode="unknown"
+    if (( internal_active && external_active )); then
+      mode="dual"
+    elif (( external_active )); then
+      mode="external"
+    elif (( internal_active )); then
+      mode="internal"
+    fi
+
+    echo "Connected: ${outputs[*]}"
+    echo "Active:    ${active[*]:-none}"
+    echo "Internal:  ${internal:-none}"
+    echo "External:  ${externals[*]:-none}"
+    echo "Mode:      $mode"
+    return 0
+  fi
+
+  if [[ "$action" == "toggle" ]]; then
+    local internal_active=0 external_active=0
+    if [[ -n "$internal" && ${active[(I)$internal]} -gt 0 ]]; then
+      internal_active=1
+    fi
+    for out in "${externals[@]}"; do
+      if (( ${active[(I)$out]} )); then
+        external_active=1
+        break
+      fi
+    done
+
+    if (( internal_active && external_active )); then
+      action="external"
+    elif (( external_active )); then
+      action="internal"
+    elif (( internal_active )); then
+      action="dual"
+    else
+      action="external"
+    fi
+  fi
+
+  case "$action" in
+    external)
+      if (( ${#externals[@]} == 0 )); then
+        echo "No external monitor detected." >&2
+        return 1
+      fi
+      local primary="${externals[1]}"
+      local -a cmd
+      cmd=(xrandr --output "$primary" --auto --primary)
+      local prev="$primary"
+      local out
+      for out in "${externals[@]}"; do
+        if [[ "$out" != "$primary" ]]; then
+          cmd+=(--output "$out" --auto --right-of "$prev")
+          prev="$out"
+        fi
+      done
+      if [[ -n "$internal" ]]; then
+        cmd+=(--output "$internal" --off)
+      fi
+      "${cmd[@]}"
+      ;;
+    internal)
+      if [[ -z "$internal" ]]; then
+        echo "No internal panel detected." >&2
+        return 1
+      fi
+      local -a cmd
+      cmd=(xrandr --output "$internal" --auto --primary)
+      local out
+      for out in "${externals[@]}"; do
+        cmd+=(--output "$out" --off)
+      done
+      "${cmd[@]}"
+      ;;
+    dual)
+      if [[ -z "$internal" && ${#externals[@]} == 0 ]]; then
+        echo "No outputs detected." >&2
+        return 1
+      fi
+      local primary="${externals[1]:-$internal}"
+      local -a cmd
+      cmd=(xrandr --output "$primary" --auto --primary)
+      local prev="$primary"
+      local out
+      for out in "${externals[@]}"; do
+        if [[ "$out" != "$primary" ]]; then
+          cmd+=(--output "$out" --auto --right-of "$prev")
+          prev="$out"
+        fi
+      done
+      if [[ -n "$internal" && "$internal" != "$primary" ]]; then
+        if [[ "${MONITOR_INTERNAL_POSITION:-right}" == "left" ]]; then
+          cmd+=(--output "$internal" --auto --left-of "$primary")
+        else
+          cmd+=(--output "$internal" --auto --right-of "$prev")
+        fi
+      fi
+      "${cmd[@]}"
+      ;;
+    *)
+      echo "Unknown mode: $action" >&2
+      return 1
+      ;;
+  esac
+}
