@@ -1,0 +1,10 @@
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise not found; install mise first."
+  return 1
+fi
+
+echo "==> Upgrading .NET SDK channels via mise"
+mise upgrade dotnet --yes
+
+echo "Installed SDKs:"
+dotnet --list-sdks

@@ -44,7 +44,7 @@ ensure_sudo() {
 install_packages_debian() {
   ensure_sudo
   $SUDO apt-get update
-  $SUDO apt-get install -y zsh git curl wget unzip ca-certificates fzf openjdk-17-jdk
+  $SUDO apt-get install -y zsh git curl wget unzip ca-certificates fzf openjdk-17-jdk python3 xz-utils
 
   # Optional packages (may not exist in older repos)
   set +e
@@ -54,7 +54,7 @@ install_packages_debian() {
 
 install_packages_fedora() {
   ensure_sudo
-  $SUDO dnf install -y zsh git curl wget unzip ca-certificates fzf starship zoxide java-17-openjdk-devel
+  $SUDO dnf install -y zsh git curl wget unzip ca-certificates fzf starship zoxide java-17-openjdk-devel python3
 }
 
 install_homebrew() {
@@ -74,77 +74,55 @@ install_homebrew() {
 install_packages_macos() {
   install_homebrew
   brew update
-  brew install zsh git curl wget unzip starship zoxide fzf
+  brew install zsh git curl wget unzip starship zoxide fzf python@3
   brew install --cask temurin
 }
 
-node_major() {
-  if ! command -v node >/dev/null 2>&1; then
-    echo 0
-    return
-  fi
-  node -v | sed 's/^v//' | cut -d. -f1
-}
-
-install_node_debian() {
-  ensure_sudo
-  log "==> Installing Node.js (20.x) via NodeSource"
-  curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO -E bash -
-  $SUDO apt-get install -y nodejs
-}
-
-install_node_fedora() {
-  ensure_sudo
-  $SUDO dnf install -y nodejs npm
-}
-
-install_node_macos() {
-  install_homebrew
-  brew install node
-}
-
-ensure_node() {
+install_mise() {
   local platform="$1"
-  local major
-  major="$(node_major)"
-  if (( major >= 18 )); then
+
+  if command -v mise >/dev/null 2>&1; then
     return
   fi
+
+  log "==> Installing mise"
 
   case "$platform" in
-    debian) install_node_debian ;;
-    fedora) install_node_fedora ;;
-    macos) install_node_macos ;;
+    macos)
+      install_homebrew
+      brew install mise
+      ;;
+    *)
+      if ! command -v curl >/dev/null 2>&1; then
+        log "curl not found; cannot install mise."
+        return
+      fi
+      if ! command -v sh >/dev/null 2>&1; then
+        log "sh not found; cannot install mise."
+        return
+      fi
+      curl -fsSL https://mise.jdx.dev/install.sh | sh
+      export PATH="$HOME/.local/bin:$PATH"
+      ;;
   esac
+}
 
-  major="$(node_major)"
-  if (( major < 18 )); then
-    log "Node.js 18+ is required for Claude Code and Codex CLI. Current: $(command -v node >/dev/null 2>&1 && node -v || echo 'none')"
+activate_mise_for_script() {
+  if command -v mise >/dev/null 2>&1; then
+    # Ensure mise-managed shims are available in this script
+    eval "$(mise activate bash)"
   fi
 }
 
-install_asdf() {
-  if [[ ! -d "$HOME/.asdf" ]]; then
-    log "==> Installing asdf"
-    git clone https://github.com/asdf-vm/asdf.git "$HOME/.asdf" --branch v0.14.0
-  fi
-}
-
-install_puro() {
-  if command -v puro >/dev/null 2>&1; then
+install_mise_tools() {
+  if ! command -v mise >/dev/null 2>&1; then
+    log "mise not found; skipping tool install."
     return
   fi
 
-  if ! command -v curl >/dev/null 2>&1; then
-    log "curl not found; skipping Puro install."
-    return
-  fi
-
-  log "==> Installing Puro"
-  export PURO_ROOT="${PURO_ROOT:-${XDG_DATA_HOME:-$HOME/.local/share}/puro}"
-  set +e
-  curl -fsSL https://puro.dev/install.sh | bash
-  set -e
+  activate_mise_for_script
+  log "==> Installing tools via mise"
+  mise install
 }
 
 setup_npm_prefix() {
@@ -326,12 +304,29 @@ setup_dotfiles() {
   backup_and_copy "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
   backup_and_copy "$DOTFILES_DIR/.zimrc" "$HOME/.zimrc"
 
-  if [[ -f "$DOTFILES_DIR/.p10k.zsh" ]]; then
-    backup_and_copy "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
-  fi
-
   if [[ -f "$DOTFILES_DIR/.config/starship.toml" ]]; then
     backup_and_copy "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+  fi
+
+  if [[ -f "$DOTFILES_DIR/.config/mise/config.toml" ]]; then
+    backup_and_copy "$DOTFILES_DIR/.config/mise/config.toml" "$HOME/.config/mise/config.toml"
+  fi
+
+  if [[ -f "$DOTFILES_DIR/.ssh/config" ]]; then
+    mkdir -p "$HOME/.ssh"
+    backup_and_copy "$DOTFILES_DIR/.ssh/config" "$HOME/.ssh/config"
+    chmod 700 "$HOME/.ssh"
+    chmod 600 "$HOME/.ssh/config"
+  fi
+
+  if [[ -f "$DOTFILES_DIR/.config/Code/User/settings.json" ]]; then
+    backup_and_copy "$DOTFILES_DIR/.config/Code/User/settings.json" \
+      "$HOME/.config/Code/User/settings.json"
+  fi
+
+  if [[ -f "$DOTFILES_DIR/.config/Code/User/keybindings.json" ]]; then
+    backup_and_copy "$DOTFILES_DIR/.config/Code/User/keybindings.json" \
+      "$HOME/.config/Code/User/keybindings.json"
   fi
 }
 
@@ -385,13 +380,12 @@ main() {
       ;;
   esac
 
-  install_asdf
-  install_puro
-  install_android_sdk
-  ensure_node "$platform"
-  install_npm_tools
   setup_dotfiles
   setup_functions
+  install_mise "$platform"
+  install_mise_tools
+  install_android_sdk
+  install_npm_tools
 
   log "==> Done. Restart your shell or run: source ~/.zshrc"
 }

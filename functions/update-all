@@ -77,6 +77,12 @@ update-all() {
     had_action=1
   fi
 
+  if (( ${+commands[mise]} )); then
+    echo "==> Updating mise tools"
+    mise upgrade --yes
+    had_action=1
+  fi
+
   if (( ${+commands[npm]} )); then
     echo "==> Updating global npm packages"
     npm update -g
