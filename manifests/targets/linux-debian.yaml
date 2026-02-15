@@ -1,0 +1,23 @@
+{
+  "packages": {
+    "apt": [
+      "zsh",
+      "git",
+      "curl",
+      "wget",
+      "unzip",
+      "ca-certificates",
+      "fzf",
+      "openjdk-17-jdk",
+      "python3",
+      "xz-utils",
+      "jq"
+    ],
+    "flatpak": [],
+    "snap": []
+  },
+  "npm_globals": [
+    "@anthropic-ai/claude-code",
+    "@openai/codex"
+  ]
+}

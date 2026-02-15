@@ -1,0 +1,14 @@
+{
+  "name": "default",
+  "description": "Default full developer environment",
+  "modules": {
+    "packages": true,
+    "dotfiles": true,
+    "functions": true,
+    "mise": true,
+    "android_sdk": true,
+    "npm_globals": true,
+    "secrets": true,
+    "global_cli": true
+  }
+}
