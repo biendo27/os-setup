@@ -1,40 +1,74 @@
-# OSSetup
+# OSSetup v2
 
-Bootstrap your Zsh environment and tools (no symlinks).
+Declarative bootstrap for your full developer experience on Linux Debian/Ubuntu and macOS.
 
-## Install (one command)
-
-```bash
-cd /home/emanon/Data/Projects/Program/Scripts/OSSetup
-./bin/setup.sh
-```
-
-## Sync local changes back into the repo
+## One-liner bootstrap
 
 ```bash
-cd /home/emanon/Data/Projects/Program/Scripts/OSSetup
-./bin/sync-from-home.sh
+curl -fsSL https://raw.githubusercontent.com/emanonlabs/OSSetup/main/bin/raw-bootstrap.sh | bash
 ```
 
-## What it does
+You can pin repo/ref with env vars:
 
-- Installs base tools (Zsh, git, curl, etc.) for Ubuntu/Debian, Fedora, macOS
-- Installs Java 17 (required for Android SDK tools)
-- Installs mise
-- Installs runtimes/tools via mise (from dotfiles/.config/mise/config.toml)
-- Installs Android SDK cmdline tools (downloads latest from Google)
-- Installs global npm tools: Claude Code, OpenAI Codex CLI
-- Copies dotfiles into place (backs up existing files)
-- Copies custom Zsh functions into `~/.config/zsh/functions/`
-  - `~/.zshrc`, `~/.zimrc`
-  - `~/.config/mise/config.toml`, `~/.config/starship.toml`
-  - `~/.ssh/config`
-  - VS Code `settings.json` and `keybindings.json`
+```bash
+OSSETUP_REPO_URL="https://github.com/emanonlabs/OSSetup.git" \
+OSSETUP_REPO_REF="main" \
+curl -fsSL https://raw.githubusercontent.com/emanonlabs/OSSetup/main/bin/raw-bootstrap.sh | bash
+```
 
-## Notes
+## Local usage
 
-- Existing files are backed up with a timestamp suffix.
-- No symlinks are used.
-- Android SDK installs to:
-  - macOS: `~/Library/Android/sdk`
-  - Linux: `${XDG_DATA_HOME:-~/.local/share}/android-sdk`
+```bash
+./bin/ossetup help
+./bin/ossetup doctor
+./bin/ossetup install --profile default --target auto
+./bin/ossetup sync --preview
+./bin/ossetup sync --apply
+./bin/ossetup sync-all --apply --target auto
+./bin/ossetup verify --report
+./bin/ossetup doctor --require-global
+```
+
+## Commands
+
+- `bootstrap`: delegates to `install`
+- `install`: installs packages, dotfiles, functions, mise, Android SDK, npm globals, and Bitwarden checks
+- `sync`: syncs local HOME config back into repo (`--preview` by default)
+- `sync-all`: runs `sync` and also refreshes software manifests from the current machine
+- `verify`: validates current machine state against repo and writes report in `reports/<timestamp>/verify-report.txt`
+- `doctor`: validates manifests and local prerequisites
+  - `--require-global` also verifies global `ossetup` shim at `~/.local/bin/ossetup`
+
+Manifest files live under `manifests/*.yaml` and currently use JSON-compatible YAML syntax so they can be parsed with `jq`.
+
+## Global Command
+
+`install` now installs a user-level shim at `~/.local/bin/ossetup` and ensures your `~/.zshrc` has:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+After first install, restart shell (or run `source ~/.zshrc`) and use:
+
+```bash
+ossetup help
+```
+
+## Canonical dotfiles
+
+Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
+
+- `dotfiles/.zshrc` <-> `~/.zshrc`
+- `dotfiles/.zimrc` <-> `~/.zimrc`
+- `dotfiles/.config/starship.toml` <-> `~/.config/starship.toml`
+- `dotfiles/.config/mise/config.toml` <-> `~/.config/mise/config.toml`
+- `dotfiles/.ssh/config` <-> `~/.ssh/config`
+- VS Code settings/keybindings
+- `functions/*` <-> `~/.config/zsh/functions/*`
+
+## Testing
+
+```bash
+bats tests
+```

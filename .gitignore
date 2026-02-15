@@ -1,0 +1,3 @@
+.ossetup.lock/
+reports/*
+!reports/.gitkeep

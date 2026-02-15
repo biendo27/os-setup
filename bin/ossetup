@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+OSSETUP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export OSSETUP_ROOT
+
+source "$OSSETUP_ROOT/lib/core/common.sh"
+source "$OSSETUP_ROOT/lib/runners/install.sh"
+source "$OSSETUP_ROOT/lib/runners/sync.sh"
+source "$OSSETUP_ROOT/lib/runners/sync-all.sh"
+source "$OSSETUP_ROOT/lib/runners/verify.sh"
+source "$OSSETUP_ROOT/lib/runners/doctor.sh"
+source "$OSSETUP_ROOT/lib/runners/bootstrap.sh"
+
+usage() {
+  cat <<USAGE
+Usage: ossetup <command> [options]
+
+Commands:
+  bootstrap         bootstrap install flow (delegates to install)
+  install           install tools/dotfiles from manifests
+  sync              sync from home back to repo (preview by default)
+  sync-all          sync config/functions and refresh software manifests
+  verify            verify installed state and generate report
+  doctor            validate manifests and dependencies
+  help              show this help
+
+Install options:
+  --profile <name>  Profile name (default: default)
+  --target <name>   Target: auto|linux-debian|macos (default: auto)
+  --dry-run         Print actions only
+
+Sync options:
+  --preview         Preview changes (default)
+  --apply           Apply changes to repo
+
+Sync-all options:
+  --preview         Preview sync and software manifest refresh (default)
+  --apply           Apply sync and refresh software manifests
+  --target <name>   Target: auto|linux-debian|macos (default: auto)
+
+Verify options:
+  --report          Print report path
+
+Doctor options:
+  --require-global  Fail if global ossetup shim is missing or invalid
+USAGE
+}
+
+main() {
+  local cmd="${1:-help}"
+  shift || true
+
+  case "$cmd" in
+    help|-h|--help)
+      usage
+      ;;
+    bootstrap)
+      run_bootstrap "$@"
+      ;;
+    install)
+      run_install "$@"
+      ;;
+    sync)
+      run_sync "$@"
+      ;;
+    sync-all)
+      run_sync_all "$@"
+      ;;
+    verify)
+      run_verify "$@"
+      ;;
+    doctor)
+      run_doctor "$@"
+      ;;
+    *)
+      usage
+      die "$E_USAGE" "Unknown command: $cmd"
+      ;;
+  esac
+}
+
+main "$@"
