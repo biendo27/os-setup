@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO_URL="${OSSETUP_REPO_URL:-https://github.com/emanonlabs/OSSetup.git}"
+REPO_URL="${OSSETUP_REPO_URL:-https://github.com/biendo27/os-setup.git}"
 REPO_REF="${OSSETUP_REPO_REF:-main}"
 INSTALL_DIR="${OSSETUP_INSTALL_DIR:-$HOME/.local/share/ossetup}"
 EXPECTED_COMMIT="${OSSETUP_EXPECTED_COMMIT:-}"

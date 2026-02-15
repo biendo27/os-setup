@@ -5,15 +5,15 @@ Declarative bootstrap for your full developer experience on Linux Debian/Ubuntu 
 ## One-liner bootstrap
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/emanonlabs/OSSetup/main/bin/raw-bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-bootstrap.sh | bash
 ```
 
 You can pin repo/ref with env vars:
 
 ```bash
-OSSETUP_REPO_URL="https://github.com/emanonlabs/OSSetup.git" \
+OSSETUP_REPO_URL="https://github.com/biendo27/os-setup.git" \
 OSSETUP_REPO_REF="main" \
-curl -fsSL https://raw.githubusercontent.com/emanonlabs/OSSetup/main/bin/raw-bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-bootstrap.sh | bash
 ```
 
 ## Local usage
