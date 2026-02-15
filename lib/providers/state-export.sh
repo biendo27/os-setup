@@ -15,7 +15,7 @@ state_dir_for_target() {
 
 lines_to_json_array() {
   local input="$1"
-  printf '%s\n' "$input" | jq -Rsc 'split("\\n") | map(select(length > 0))'
+  printf '%s\n' "$input" | jq -Rsc 'split("\n") | map(select(length > 0))'
 }
 
 capture_apt_manual() {

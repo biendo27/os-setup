@@ -83,8 +83,17 @@ EOS
   [[ "$output" == *"sync-all APPLY complete"* ]]
 
   grep -q "# synced-by-all" "$work/dotfiles/.zshrc"
-  [[ "$(jq -r '.packages.apt[]' "$work/manifests/targets/linux-debian.yaml")" == *"my-new-cli"* ]]
-  [[ "$(jq -r '.packages.flatpak[]' "$work/manifests/targets/linux-debian.yaml")" == *"org.telegram.desktop"* ]]
-  [[ "$(jq -r '.packages.snap[]' "$work/manifests/targets/linux-debian.yaml")" == *"discord"* ]]
-  [[ "$(jq -r '.npm_globals[]' "$work/manifests/targets/linux-debian.yaml")" == *"my-npm-tool"* ]]
+  apt_len="$(jq '.packages.apt | length' "$work/manifests/targets/linux-debian.yaml")"
+  flatpak_len="$(jq '.packages.flatpak | length' "$work/manifests/targets/linux-debian.yaml")"
+  snap_len="$(jq '.packages.snap | length' "$work/manifests/targets/linux-debian.yaml")"
+  npm_len="$(jq '.npm_globals | length' "$work/manifests/targets/linux-debian.yaml")"
+  [ "$apt_len" -eq 3 ]
+  [ "$flatpak_len" -eq 2 ]
+  [ "$snap_len" -eq 2 ]
+  [ "$npm_len" -eq 2 ]
+
+  [ "$(jq -r '.packages.apt[2]' "$work/manifests/targets/linux-debian.yaml")" = "my-new-cli" ]
+  [ "$(jq -r '.packages.flatpak[0]' "$work/manifests/targets/linux-debian.yaml")" = "com.visualstudio.code" ]
+  [ "$(jq -r '.packages.snap[0]' "$work/manifests/targets/linux-debian.yaml")" = "discord" ]
+  [ "$(jq -r '.npm_globals[1]' "$work/manifests/targets/linux-debian.yaml")" = "my-npm-tool" ]
 }
