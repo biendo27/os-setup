@@ -1,0 +1,264 @@
+===== Host and OS =====
+
+$ uname -a
+Linux evolution 6.17.0-14-generic #14~24.04.1-Ubuntu SMP PREEMPT_DYNAMIC Thu Jan 15 15:52:10 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+
+$ cat /etc/os-release
+PRETTY_NAME="Ubuntu 24.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.3 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+
+$ hostnamectl
+ Static hostname: evolution
+       Icon name: computer-laptop
+         Chassis: laptop 💻
+      Machine ID: 8357e21eadf148a99f4e2a6c9ae54873
+         Boot ID: 720dd3c2f6cd4cfe9f531a9c868f92e8
+Operating System: Ubuntu 24.04.3 LTS
+          Kernel: Linux 6.17.0-14-generic
+    Architecture: x86-64
+ Hardware Vendor: Lenovo
+  Hardware Model: IdeaPad Gaming 3 15IHU6
+Firmware Version: H4CN34WW(V2.03)
+   Firmware Date: Tue 2023-12-19
+    Firmware Age: 2y 1month 3w
+
+$ uptime
+ 08:37:33 up 29 min,  1 user,  load average: 1.41, 0.99, 0.79
+
+===== Storage Layout =====
+
+$ lsblk -o NAME,TYPE,SIZE,FSTYPE,LABEL,UUID,FSAVAIL,FSUSE%,MOUNTPOINTS
+NAME        TYPE   SIZE FSTYPE   LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+loop0       loop     4K squashfs                                                  0   100% /snap/bare/5
+loop1       loop    13M squashfs                                                  0   100% /snap/canonical-livepatch/375
+loop2       loop    13M squashfs                                                  0   100% /snap/canonical-livepatch/372
+loop3       loop  55.5M squashfs                                                  0   100% /snap/core18/2976
+loop4       loop  55.5M squashfs                                                  0   100% /snap/core18/2979
+loop5       loop  73.9M squashfs                                                  0   100% /snap/core22/2216
+loop6       loop    74M squashfs                                                  0   100% /snap/core22/2292
+loop7       loop  66.9M squashfs                                                  0   100% /snap/core24/1349
+loop8       loop  66.8M squashfs                                                  0   100% /snap/core24/1267
+loop9       loop  48.8M squashfs                                                  0   100% /snap/cups/1138
+loop10      loop  47.6M squashfs                                                  0   100% /snap/cups/1142
+loop11      loop 117.5M squashfs                                                  0   100% /snap/discord/267
+loop12      loop 251.7M squashfs                                                  0   100% /snap/firefox/7720
+loop13      loop 117.5M squashfs                                                  0   100% /snap/discord/268
+loop14      loop 251.7M squashfs                                                  0   100% /snap/firefox/7766
+loop15      loop 164.8M squashfs                                                  0   100% /snap/gnome-3-28-1804/198
+loop16      loop  18.5M squashfs                                                  0   100% /snap/firmware-updater/210
+loop17      loop 516.2M squashfs                                                  0   100% /snap/gnome-42-2204/226
+loop18      loop  16.4M squashfs                                                  0   100% /snap/firmware-updater/216
+loop19      loop 531.4M squashfs                                                  0   100% /snap/gnome-42-2204/247
+loop20      loop 669.8M squashfs                                                  0   100% /snap/gnome-46-2404/145
+loop21      loop 606.1M squashfs                                                  0   100% /snap/gnome-46-2404/153
+loop22      loop  91.7M squashfs                                                  0   100% /snap/gtk-common-themes/1535
+loop23      loop   395M squashfs                                                  0   100% /snap/mesa-2404/1165
+loop24      loop 290.8M squashfs                                                  0   100% /snap/mesa-2404/912
+loop25      loop 174.4M squashfs                                                  0   100% /snap/postman/360
+loop26      loop 174.5M squashfs                                                  0   100% /snap/postman/362
+loop27      loop     2G squashfs                                                  0   100% /snap/rider/682
+loop28      loop     2G squashfs                                                  0   100% /snap/rider/688
+loop29      loop  10.8M squashfs                                                  0   100% /snap/snap-store/1270
+loop30      loop  50.9M squashfs                                                  0   100% /snap/snapd/25577
+loop31      loop  48.1M squashfs                                                  0   100% /snap/snapd/25935
+loop32      loop   576K squashfs                                                  0   100% /snap/snapd-desktop-integration/315
+loop33      loop  82.1M squashfs                                                  0   100% /snap/telegram-desktop/6883
+loop34      loop   576K squashfs                                                  0   100% /snap/snapd-desktop-integration/343
+loop35      loop  83.2M squashfs                                                  0   100% /snap/telegram-desktop/6895
+loop36      loop 226.6M squashfs                                                  0   100% /snap/thunderbird/933
+loop37      loop 226.6M squashfs                                                  0   100% /snap/thunderbird/959
+loop38      loop 451.3M squashfs                                                  0   100% /snap/zoom-client/258
+loop39      loop 484.1M squashfs                                                  0   100% /snap/zoom-client/275
+nvme0n1     disk 476.9G                                                                    
+├─nvme0n1p1 part     1G vfat           1A88-45B1                                 1G     2% /boot/efi
+└─nvme0n1p2 part 475.9G ext4           dd032825-e747-450c-9ff1-4f678b01c128  401.7G     9% /
+nvme1n1     disk 931.5G                                                                    
+├─nvme1n1p1 part   100G ext4           487ddccf-7517-4856-8652-c6c8fb95b8c9   65.6G    28% /opt
+└─nvme1n1p2 part 831.5G ext4           e3dff680-63dd-44b8-aeb4-31b9e14b2beb    527G    30% /home
+
+$ df -hT
+Filesystem     Type      Size  Used Avail Use% Mounted on
+tmpfs          tmpfs     3.2G  3.1M  3.2G   1% /run
+/dev/nvme0n1p2 ext4      468G   42G  402G  10% /
+tmpfs          tmpfs      16G   36M   16G   1% /dev/shm
+tmpfs          tmpfs     5.0M  8.0K  5.0M   1% /run/lock
+efivarfs       efivarfs  184K  119K   61K  67% /sys/firmware/efi/efivars
+/dev/nvme0n1p1 vfat      1.1G   21M  1.1G   2% /boot/efi
+/dev/nvme1n1p1 ext4       98G   27G   66G  29% /opt
+/dev/nvme1n1p2 ext4      818G  249G  528G  33% /home
+tmpfs          tmpfs     3.2G  2.0M  3.2G   1% /run/user/1000
+
+$ findmnt -T / -o TARGET,SOURCE,FSTYPE,OPTIONS
+TARGET SOURCE         FSTYPE OPTIONS
+/      /dev/nvme0n1p2 ext4   rw,relatime
+
+$ findmnt -T /home -o TARGET,SOURCE,FSTYPE,OPTIONS
+TARGET SOURCE         FSTYPE OPTIONS
+/home  /dev/nvme1n1p2 ext4   rw,relatime,stripe=32
+
+$ findmnt -T /opt -o TARGET,SOURCE,FSTYPE,OPTIONS
+TARGET SOURCE         FSTYPE OPTIONS
+/opt   /dev/nvme1n1p1 ext4   rw,relatime,stripe=32
+
+$ findmnt -T /boot/efi -o TARGET,SOURCE,FSTYPE,OPTIONS
+TARGET    SOURCE         FSTYPE OPTIONS
+/boot/efi /dev/nvme0n1p1 vfat   rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mixed,errors=remount-ro
+
+$ cat /etc/fstab
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+# / was on /dev/nvme1n1p2 during curtin installation
+/dev/disk/by-uuid/dd032825-e747-450c-9ff1-4f678b01c128 / ext4 defaults 0 1
+# /boot/efi was on /dev/nvme1n1p1 during curtin installation
+/dev/disk/by-uuid/1A88-45B1 /boot/efi vfat defaults 0 1
+# /opt was on /dev/nvme0n1p1 during curtin installation
+/dev/disk/by-uuid/487ddccf-7517-4856-8652-c6c8fb95b8c9 /opt ext4 defaults 0 1
+# /home was on /dev/nvme0n1p2 during curtin installation
+/dev/disk/by-uuid/e3dff680-63dd-44b8-aeb4-31b9e14b2beb /home ext4 defaults 0 1
+/swap.img	none	swap	sw	0	0
+
+===== Boot and Firmware =====
+
+$ cat /proc/cmdline
+BOOT_IMAGE=/boot/vmlinuz-6.17.0-14-generic root=UUID=dd032825-e747-450c-9ff1-4f678b01c128 ro quiet splash vt.handoff=7
+
+$ mokutil --sb-state
+SecureBoot disabled
+Platform is in Setup Mode
+
+$ efibootmgr -v
+BootCurrent: 0003
+Timeout: 0 seconds
+BootOrder: 0003,2001,2002,2003
+Boot0001* EFI PXE 0 for IPv4 (7C-8A-E1-8B-4C-B5) 	PciRoot(0x0)/Pci(0x1d,0x3)/Pci(0x0,0x0)/MAC(7c8ae18b4cb5,0)/IPv4(0.0.0.00.0.0.0,0,0)RC
+      dp: 02 01 0c 00 d0 41 03 0a 00 00 00 00 / 01 01 06 00 03 1d / 01 01 06 00 00 00 / 03 0b 25 00 7c 8a e1 8b 4c b5 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 / 03 0c 1b 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 / 7f ff 04 00
+    data: 52 43
+Boot0002* EFI PXE 0 for IPv6 (7C-8A-E1-8B-4C-B5) 	PciRoot(0x0)/Pci(0x1d,0x3)/Pci(0x0,0x0)/MAC(7c8ae18b4cb5,0)/IPv6([::]:<->[::]:,0,0)RC
+      dp: 02 01 0c 00 d0 41 03 0a 00 00 00 00 / 01 01 06 00 03 1d / 01 01 06 00 00 00 / 03 0b 25 00 7c 8a e1 8b 4c b5 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 / 03 0d 3c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 / 7f ff 04 00
+    data: 52 43
+Boot0003* ubuntu	HD(1,GPT,8d45906d-cd0b-4715-9250-e2bd2816b47f,0x800,0x219800)/File(\EFI\ubuntu\shimx64.efi)
+      dp: 04 01 2a 00 01 00 00 00 00 08 00 00 00 00 00 00 00 98 21 00 00 00 00 00 6d 90 45 8d 0b cd 15 47 92 50 e2 bd 28 16 b4 7f 02 02 / 04 04 34 00 5c 00 45 00 46 00 49 00 5c 00 75 00 62 00 75 00 6e 00 74 00 75 00 5c 00 73 00 68 00 69 00 6d 00 78 00 36 00 34 00 2e 00 65 00 66 00 69 00 00 00 / 7f ff 04 00
+Boot2001* EFI USB Device	RC
+      dp: 7f ff 04 00
+    data: 52 43
+Boot2002* EFI DVD/CDROM	RC
+      dp: 7f ff 04 00
+    data: 52 43
+Boot2003* EFI Network	RC
+      dp: 7f ff 04 00
+    data: 52 43
+
+===== User and Permissions =====
+
+$ id
+uid=1000(emanon) gid=1000(emanon) groups=1000(emanon),4(adm),24(cdrom),27(sudo),30(dip),46(plugdev),100(users),114(lpadmin),125(vboxusers),983(ollama),984(nordvpn)
+
+$ getent passwd "emanon"
+emanon:x:1000:1000:Revolution D:/home/emanon:/usr/bin/zsh
+
+$ groups "emanon"
+emanon : emanon adm cdrom sudo dip plugdev users lpadmin nordvpn vboxusers ollama
+
+$ stat -c '%n %U:%G %a' /home /home/emanon
+/home root:root 755
+/home/emanon emanon:emanon 750
+
+===== Packages =====
+
+$ apt-mark showmanual | wc -l
+113
+
+$ snap list
+Name                       Version                         Rev    Tracking         Publisher           Notes
+bare                       1.0                             5      latest/stable    canonical**         base
+canonical-livepatch        v10.11.13                       375    latest/stable    canonical**         -
+core18                     20260105                        2979   latest/stable    canonical**         base
+core22                     20260113                        2292   latest/stable    canonical**         base
+core24                     20260107                        1349   latest/stable    canonical**         base
+cups                       2.4.12-2                        1142   latest/stable    openprinting**      -
+discord                    0.0.123                         268    latest/stable    snapcrafters*       -
+firefox                    147.0.3-1                       7766   latest/stable/…  mozilla**           -
+firmware-updater           0+git.0052f6b                   210    1/stable/…       canonical**         -
+gnome-3-28-1804            3.28.0-19-g98f9e67.98f9e67      198    latest/stable    canonical**         -
+gnome-42-2204              0+git.c1d3d69-sdk0+git.015db9a  247    latest/stable/…  canonical**         -
+gnome-46-2404              0+git.f1cd5fa-sdk0+git.ca9c59c  153    latest/stable    canonical**         -
+gtk-common-themes          0.1-81-g442e511                 1535   latest/stable/…  canonical**         -
+mesa-2404                  25.0.7-snap211                  1165   latest/stable    canonical**         -
+postman                    11.71.7                         360    latest/stable    postman-inc**       -
+rider                      2025.3.2                        688    latest/stable    jetbrains**         classic
+snap-store                 0+git.90575829                  1270   2/stable/…       canonical**         -
+snapd                      2.73                            25935  latest/stable    canonical**         snapd
+snapd-desktop-integration  0.9                             343    latest/stable/…  canonical**         -
+telegram-desktop           6.5.0                           6895   latest/stable    telegram-desktop**  -
+thunderbird                140.7.1esr-1                    959    latest/stable/…  canonical**         -
+zoom-client                6.6.11.6052                     275    latest/stable    ogra                -
+
+$ flatpak list --app
+vokoscreenNG	com.github.vkohaupt.vokoscreenNG	4.8.3	stable	system
+Gear Lever	it.mijorus.gearlever	4.3.1	stable	system
+
+===== Drivers =====
+
+$ ubuntu-drivers devices
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+udevadm hwdb is deprecated. Use systemd-hwdb instead.
+== /sys/devices/pci0000:00/0000:00:1c.0/0000:01:00.0 ==
+modalias : pci:v000010DEd000025A2sv000017AAsd00003A5Bbc03sc02i00
+vendor   : NVIDIA Corporation
+model    : GA107M [GeForce RTX 3050 Mobile]
+driver   : nvidia-driver-580-open - distro non-free
+driver   : nvidia-driver-580-server-open - distro non-free
+driver   : nvidia-driver-590 - distro non-free
+driver   : nvidia-driver-535 - distro non-free
+driver   : nvidia-driver-570 - distro non-free
+driver   : nvidia-driver-470-server - distro non-free
+driver   : nvidia-driver-535-server - distro non-free
+driver   : nvidia-driver-470 - distro non-free
+driver   : nvidia-driver-580-server - distro non-free
+driver   : nvidia-driver-570-open - distro non-free
+driver   : nvidia-driver-570-server - distro non-free
+driver   : nvidia-driver-590-server - distro non-free
+driver   : nvidia-driver-590-open - distro non-free recommended
+driver   : nvidia-driver-590-server-open - distro non-free
+driver   : nvidia-driver-570-server-open - distro non-free
+driver   : nvidia-driver-535-server-open - distro non-free
+driver   : nvidia-driver-535-open - distro non-free
+driver   : nvidia-driver-580 - distro non-free
+driver   : xserver-xorg-video-nouveau - distro free builtin
+
+
+$ dpkg -l | rg -i 'nvidia-driver'
+ii  nvidia-driver-580-open                          580.126.09-0ubuntu0.24.04.1              amd64        NVIDIA driver (open kernel) metapackage
+
