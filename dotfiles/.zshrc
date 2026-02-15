@@ -46,40 +46,33 @@ if [[ ! -f ${ZIM_HOME}/init.zsh || ! -f ${ZIM_CONFIG_FILE} || ${ZIM_HOME}/init.z
   source ${ZIM_HOME}/zimfw.zsh init
 fi
 if [[ -z ${ZIM_INIT_DONE-} ]]; then
-  # Starship prompt needs to be initialized before the transient prompt module loads.
+  # Initialize Starship before Zim modules so prompt hooks are ready.
   if (( ${+commands[starship]} )); then
     eval "$(starship init zsh)"
   fi
-  # Transient prompt: hide previous prompts after each command
-  TRANSIENT_PROMPT_TRANSIENT_PROMPT=''
+
+  # zsh-transient-prompt settings: keep Starship as active prompt,
+  # collapse previous prompts to a minimal shell character.
+  TRANSIENT_PROMPT_TRANSIENT_PROMPT='%# '
   TRANSIENT_PROMPT_TRANSIENT_RPROMPT=''
+
   source ${ZIM_HOME}/init.zsh
+  zle_highlight=(${zle_highlight:#paste:*} "paste:none")
   ZIM_INIT_DONE=1
 fi
 
-# Reset compinit wrapper installed by zim completion to avoid duplicate warnings on reload
-if typeset -f compinit >/dev/null; then
-  unfunction compinit
-  autoload -Uz compinit
-fi
-
 # --- 4. TOOLS & COMPLETIONS ---
-# zoxide (smart cd)
-if (( ${+commands[zoxide]} )); then
-  eval "$(zoxide init zsh)"
-fi
-
 # mise (all-in-one runtime manager)
 if command -v mise >/dev/null 2>&1; then
-  eval "$(mise activate zsh)"
+  eval "$(mise activate --shims zsh)"
 fi
 
 # Dart CLI Completion
 [[ -f /home/emanon/.dart-cli-completion/zsh-config.zsh ]] && . /home/emanon/.dart-cli-completion/zsh-config.zsh
 
 # --- 5. PROMPT & EXTRAS ---
+
 # >>> llmproxy >>>
 export CLIPROXY_HOME="$HOME/cliproxyapi/llmproxy-config"
-[[ -f "$CLIPROXY_HOME/.llmproxy.zsh" ]] && source "$CLIPROXY_HOME/.llmproxy.zsh"
+[[ -f "$CLIPROXY_HOME/src/llmproxy-bootstrap-loader.zsh" ]] && source "$CLIPROXY_HOME/src/llmproxy-bootstrap-loader.zsh"
 # <<< llmproxy <<<
-

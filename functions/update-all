@@ -17,7 +17,105 @@ update-all() {
 
   if (( ${+commands[apt]} && ${+commands[sudo]} )); then
     echo "==> Updating apt packages"
-    sudo apt update && sudo apt upgrade -y
+    local apt_status=0
+    local apt_needs_sanitized_sources=0
+    local apt_sourceparts_tmp=""
+    local cursor_source_file="/etc/apt/sources.list.d/cursor.sources"
+    local cursor_source_disabled_file="/etc/apt/sources.list.d/cursor.sources.disabled"
+
+    # Cursor apt repo currently returns 403; disable it if unreachable.
+    if [[ -f "$cursor_source_file" ]] && (( ${+commands[curl]} )); then
+      if ! curl -fsSI --max-time 8 https://downloads.cursor.com/aptrepo/dists/stable/InRelease >/dev/null 2>&1; then
+        echo "Notice: cursor apt repo is unreachable (403). Disabling repo file."
+        if sudo mv -f -- "$cursor_source_file" "$cursor_source_disabled_file" >/dev/null 2>&1; then
+          echo "Notice: moved to $cursor_source_disabled_file"
+        else
+          apt_needs_sanitized_sources=1
+          echo "Notice: could not rename repo file; skipping it for this run."
+        fi
+      fi
+    fi
+
+    # Remove malformed source file (safe cleanup) that causes apt notice spam.
+    if [[ -f /etc/apt/sources.list.d/trixie- ]]; then
+      echo "Notice: removing malformed apt source file: /etc/apt/sources.list.d/trixie-"
+      sudo rm -f /etc/apt/sources.list.d/trixie- || true
+    fi
+
+    if (( apt_needs_sanitized_sources )); then
+      apt_sourceparts_tmp="$(mktemp -d)"
+      local src_file
+      for src_file in /etc/apt/sources.list.d/*; do
+        [[ -f "$src_file" ]] || continue
+        local src_name="${src_file:t}"
+        [[ "$src_name" == "cursor.sources" ]] && continue
+        [[ "$src_name" == "cursor.sources.disabled" ]] && continue
+        cp -a -- "$src_file" "$apt_sourceparts_tmp/$src_name"
+      done
+      sudo apt -o Dir::Etc::sourceparts="$apt_sourceparts_tmp" update && \
+        sudo apt -o Dir::Etc::sourceparts="$apt_sourceparts_tmp" upgrade -y
+      apt_status=$?
+      rm -rf -- "$apt_sourceparts_tmp"
+    else
+      sudo apt update && sudo apt upgrade -y
+      apt_status=$?
+    fi
+
+    if (( apt_status != 0 )); then
+      echo "Warning: apt update/upgrade failed; continuing with other managers."
+    fi
+
+    # Replace deprecated Cursor apt repo with official Cursor .deb channel.
+    if (( ${+commands[curl]} && ${+commands[dpkg]} )); then
+      echo "==> Updating Cursor (official .deb channel)"
+      local cursor_status=0
+      local cursor_arch=""
+      local cursor_api_url=""
+      local cursor_location_url=""
+      local cursor_latest_semver=""
+      local cursor_installed_ver=""
+      local cursor_installed_semver=""
+      local cursor_tmp_deb=""
+
+      case "$(dpkg --print-architecture 2>/dev/null || uname -m)" in
+        amd64|x86_64) cursor_arch="x64" ;;
+        arm64|aarch64) cursor_arch="arm64" ;;
+        *)
+          cursor_status=2
+          echo "Notice: unsupported architecture for Cursor auto-update."
+          ;;
+      esac
+
+      if (( cursor_status == 0 )); then
+        cursor_api_url="https://api2.cursor.sh/updates/download/golden/linux-${cursor_arch}-deb/cursor/2.4"
+        cursor_location_url="$(
+          curl -fsSI --max-time 12 "$cursor_api_url" | \
+            awk 'BEGIN{IGNORECASE=1} /^location:/{gsub(/\r/, "", $2); print $2; exit}'
+        )"
+        [[ -z "$cursor_location_url" ]] && cursor_location_url="$cursor_api_url"
+
+        cursor_latest_semver="$(basename "$cursor_location_url" | sed -n 's/^cursor_\([0-9][^_]*\)_.*\.deb$/\1/p')"
+        cursor_installed_ver="$(dpkg-query -W -f='${Version}' cursor 2>/dev/null || true)"
+        cursor_installed_semver="${cursor_installed_ver%%-*}"
+
+        if [[ -n "$cursor_installed_semver" ]] && [[ -n "$cursor_latest_semver" ]] && [[ "$cursor_installed_semver" == "$cursor_latest_semver" ]]; then
+          echo "Cursor already at latest semver: $cursor_installed_semver"
+        else
+          cursor_tmp_deb="/tmp/cursor-latest-${cursor_arch}.deb"
+          if curl -fL --retry 2 --connect-timeout 10 --max-time 900 -o "$cursor_tmp_deb" "$cursor_api_url"; then
+            sudo apt install -y "$cursor_tmp_deb" || cursor_status=$?
+            rm -f -- "$cursor_tmp_deb"
+          else
+            cursor_status=1
+          fi
+        fi
+      fi
+
+      if (( cursor_status != 0 )); then
+        echo "Warning: Cursor update step failed; continuing."
+      fi
+    fi
+
     had_action=1
   fi
 

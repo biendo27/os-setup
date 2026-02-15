@@ -1,0 +1,10 @@
+bare
+core22
+core24
+gnome-46-2404
+gtk-common-themes
+mesa-2404
+rider
+snapd
+telegram-desktop
+zoom-client

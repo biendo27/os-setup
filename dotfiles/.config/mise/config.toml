@@ -6,16 +6,10 @@ shellcheck = "0.9.0"
 bats = "1.8.2"
 python = "3.14.2"
 dotnet = ["8", "9", "10"]
-flutter = { version = "3.38.8", platforms = """
+flutter = { version = "3.38.9", platforms = """
+[linux-arm64]
+url = 'https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_arm64_{{ version | replace(from="-stable", to="") }}-stable.tar.xz'
+
 [linux-x64]
-url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ version }}-stable.tar.xz"
-
-[macos-arm64]
-url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_arm64_{{ version }}-stable.zip"
-
-[macos-x64]
-url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/flutter_macos_{{ version }}-stable.zip"
-
-[windows-x64]
-url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/windows/flutter_windows_{{ version }}-stable.zip"
-""", version_json_path = ".releases[?channel=stable].version", version_list_url = "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json" }
+url = 'https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ version | replace(from="-stable", to="") }}-stable.tar.xz'
+""", url = "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ version }}-stable.zip", version_json_path = ".releases[?channel=stable].version", version_list_url = "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json" }
