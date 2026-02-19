@@ -31,9 +31,6 @@ EOS
   mkfake mise
   mkfake npm
   mkfake curl
-  if [[ "$(uname -s)" == "Darwin" ]]; then
-    mkfake brew
-  fi
 
   cat > "$fakebin/sudo" <<'EOS'
 #!/usr/bin/env bash
@@ -66,7 +63,7 @@ EOS
 }
 
 @test "update-all uses apt/snap + mise upgrade/reshim and skips npm update -g" {
-  run env PATH="$fakebin:$PATH" WORK_DIR="$work" zsh -lc 'source "$WORK_DIR/functions/update-all"; update-all'
+  run env PATH="$fakebin:/usr/bin:/bin" WORK_DIR="$work" zsh -f -c 'source "$WORK_DIR/functions/update-all"; update-all'
   [ "$status" -eq 0 ]
 
   if [[ "$(uname -s)" != "Darwin" ]]; then

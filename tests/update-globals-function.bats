@@ -23,7 +23,7 @@ EOS
 }
 
 @test "update-globals function delegates to ossetup command" {
-  run env PATH="$fakebin:$PATH" WORK_DIR="$work" zsh -lc 'source "$WORK_DIR/functions/update-globals"; update-globals --dry-run'
+  run env PATH="$fakebin:/usr/bin:/bin" WORK_DIR="$work" zsh -f -c 'source "$WORK_DIR/functions/update-globals"; update-globals --dry-run'
   [ "$status" -eq 0 ]
   grep -q '^ossetup update-globals --dry-run$' "$log"
 }
