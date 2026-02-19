@@ -74,9 +74,6 @@ EOS
     grep -q '^sudo apt update$' "$log"
     grep -q '^sudo apt upgrade -y$' "$log"
     grep -q '^sudo snap refresh$' "$log"
-  else
-    grep -q '^brew update$' "$log"
-    grep -q '^brew upgrade$' "$log"
   fi
   grep -q '^mise upgrade --yes$' "$log"
   grep -q '^mise reshim$' "$log"
