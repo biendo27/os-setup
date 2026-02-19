@@ -5,7 +5,13 @@
   local -a docs=(
     "$root/docs/architecture/ARCHITECTURE.md"
     "$root/docs/architecture/INVARIANTS.md"
+    "$root/docs/architecture/DATA-CONTRACTS.md"
     "$root/docs/agents/AGENT_CONTEXT.md"
+    "$root/docs/runbooks/DEBUGGING.md"
+    "$root/docs/runbooks/RELEASE.md"
+    "$root/docs/adr/ADR-0001-manifest-layering-roadmap.md"
+    "$root/docs/adr/ADR-0002-command-contract-expansion-roadmap.md"
+    "$root/docs/plans/2026-02-19-phase3-4-execution-roadmap.md"
     "$root/docs/cleanup/cleanup-inventory.md"
     "$root/docs/deprecations.md"
     "$root/docs/migration-notes.md"
@@ -27,7 +33,19 @@
   [ "$status" -eq 0 ]
   run rg -n 'docs/architecture/INVARIANTS.md' "$readme"
   [ "$status" -eq 0 ]
+  run rg -n 'docs/architecture/DATA-CONTRACTS.md' "$readme"
+  [ "$status" -eq 0 ]
   run rg -n 'docs/agents/AGENT_CONTEXT.md' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'docs/runbooks/DEBUGGING.md' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'docs/runbooks/RELEASE.md' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'docs/adr/ADR-0001-manifest-layering-roadmap.md' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'docs/adr/ADR-0002-command-contract-expansion-roadmap.md' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'docs/plans/2026-02-19-phase3-4-execution-roadmap.md' "$readme"
   [ "$status" -eq 0 ]
   run rg -n 'docs/cleanup/cleanup-inventory.md' "$readme"
   [ "$status" -eq 0 ]
@@ -47,5 +65,16 @@
   run rg -n 'bin/sync-from-home.sh' "$deprecations"
   [ "$status" -eq 0 ]
   run rg -n 'bin/setup-zsh-functions.sh' "$deprecations"
+  [ "$status" -eq 0 ]
+}
+
+@test "contributing guide defines changelog policy" {
+  local contributing="$BATS_TEST_DIRNAME/../CONTRIBUTING.md"
+
+  run rg -n 'Keep a Changelog' "$contributing"
+  [ "$status" -eq 0 ]
+  run rg -n 'Semantic Versioning' "$contributing"
+  [ "$status" -eq 0 ]
+  run rg -n '\[Unreleased\]' "$contributing"
   [ "$status" -eq 0 ]
 }

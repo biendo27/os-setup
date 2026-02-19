@@ -35,13 +35,27 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 
 - Architecture: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
 - Invariants: [`docs/architecture/INVARIANTS.md`](docs/architecture/INVARIANTS.md)
+- Data contracts: [`docs/architecture/DATA-CONTRACTS.md`](docs/architecture/DATA-CONTRACTS.md)
 - Agent handoff context: [`docs/agents/AGENT_CONTEXT.md`](docs/agents/AGENT_CONTEXT.md)
 - Cleanup inventory: [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md)
 - Deprecations log: [`docs/deprecations.md`](docs/deprecations.md)
 - Migration notes: [`docs/migration-notes.md`](docs/migration-notes.md)
+- Runbooks:
+  - [`docs/runbooks/DEBUGGING.md`](docs/runbooks/DEBUGGING.md)
+  - [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md)
+- ADR roadmap:
+  - [`docs/adr/ADR-0001-manifest-layering-roadmap.md`](docs/adr/ADR-0001-manifest-layering-roadmap.md)
+  - [`docs/adr/ADR-0002-command-contract-expansion-roadmap.md`](docs/adr/ADR-0002-command-contract-expansion-roadmap.md)
+- Phase 3-4 execution roadmap: [`docs/plans/2026-02-19-phase3-4-execution-roadmap.md`](docs/plans/2026-02-19-phase3-4-execution-roadmap.md)
 - Contribution guide: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
 - License: [`LICENSE`](LICENSE)
+
+## Release and Changelog
+
+- Versioning uses Semantic Versioning (`vMAJOR.MINOR.PATCH`).
+- Changelog format follows Keep a Changelog in [`CHANGELOG.md`](CHANGELOG.md).
+- Release procedure is documented in [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md).
 
 ## Commands
 
