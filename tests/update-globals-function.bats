@@ -8,17 +8,22 @@ setup() {
   log="$BATS_TEST_TMPDIR/update-globals-function.log"
   mkdir -p "$fakebin"
 
+  inject_log() {
+    local script="$1"
+    perl -0pi -e 's#__LOG__#'"$log"'#g' "$script"
+  }
+
   cat > "$fakebin/ossetup" <<'EOS'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s %s\n' "ossetup" "$*" >> "__LOG__"
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/ossetup"
+  inject_log "$fakebin/ossetup"
   chmod +x "$fakebin/ossetup"
 }
 
 @test "update-globals function delegates to ossetup command" {
-  run env PATH="$fakebin:$PATH" WORK_DIR="$work" zsh -lc 'source "$WORK_DIR/functions/update-globals"; update-globals --dry-run'
+  run env PATH="$fakebin:/usr/bin:/bin" WORK_DIR="$work" zsh -f -c 'source "$WORK_DIR/functions/update-globals"; update-globals --dry-run'
   [ "$status" -eq 0 ]
   grep -q '^ossetup update-globals --dry-run$' "$log"
 }

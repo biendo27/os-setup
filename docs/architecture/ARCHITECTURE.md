@@ -44,10 +44,10 @@ Provide repeatable, low-effort environment restore for Linux Debian/Ubuntu and m
 
 - Core automation contract is under `bin/`, `lib/`, `manifests/`, `tests/`, and root docs.
 - `popos-migration/` is a supported utility set, but not a core `ossetup` command path.
-- Legacy shims are temporary compatibility surfaces and tracked in `docs/deprecations.md`.
+- Removed/deprecated entrypoint history is tracked in `docs/deprecations.md`.
 
 ## Evolution Rules
 
 - New behavior must be added behind explicit command contracts and tests.
-- Deprecated entrypoints must keep shim behavior for at least one release window.
+- Deprecated entrypoints must publish migration mapping before removal.
 - Cleanup/removal must be tracked in `docs/cleanup/cleanup-inventory.md` before changes.

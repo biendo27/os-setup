@@ -18,7 +18,7 @@ JSON
 }
 
 @test "install creates global ossetup shim" {
-  run "$work/bin/ossetup" install --profile test-global --target linux-debian
+  run "$work/bin/ossetup" install --profile test-global --target auto
   [ "$status" -eq 0 ]
 
   shim="$OSSETUP_HOME_DIR/.local/bin/ossetup"
@@ -28,10 +28,10 @@ JSON
 }
 
 @test "install is idempotent for zshrc PATH block" {
-  run "$work/bin/ossetup" install --profile test-global --target linux-debian
+  run "$work/bin/ossetup" install --profile test-global --target auto
   [ "$status" -eq 0 ]
 
-  run "$work/bin/ossetup" install --profile test-global --target linux-debian
+  run "$work/bin/ossetup" install --profile test-global --target auto
   [ "$status" -eq 0 ]
 
   count="$(grep -c '# >>> ossetup path >>>' "$OSSETUP_HOME_DIR/.zshrc")"

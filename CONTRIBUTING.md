@@ -6,6 +6,22 @@
 2. Implement changes in small, reviewable batches.
 3. Keep cleanup actions tracked in `docs/cleanup/cleanup-inventory.md`.
 4. Update docs when contracts or behavior change.
+5. Update `CHANGELOG.md` for every user-facing change.
+
+## Git Workflow Policy
+
+1. Branching model is trunk-based:
+   - `main` is always release-ready.
+   - work only on short-lived feature branches.
+2. Direct pushes to `main` are not allowed; use pull requests only.
+3. Merge strategy is merge-commit only:
+   - preserve branch lineage on `main`.
+4. PR checks are mandatory before merge:
+   - CI (`validate-ubuntu-latest`, `validate-macos-latest`)
+   - PR title check (`pr-title`)
+5. PR title must follow:
+   - `^(build|chore|ci|docs|feat|fix|perf|refactor|revert|test)(\([a-z0-9._/-]+\))?!?: .+`
+6. Feature branches are auto-deleted after merge.
 
 ## Required Checks
 
@@ -22,6 +38,23 @@ If available locally, also run:
 ```bash
 shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration/scripts tests) bin/ossetup
 ```
+
+## Changelog and Versioning
+
+1. Changelog format follows:
+   - [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+   - [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
+2. `CHANGELOG.md` must contain:
+   - `## [Unreleased]`
+   - versioned sections in form `## [X.Y.Z] - YYYY-MM-DD`
+   - comparison links at the bottom.
+3. PR rule:
+   - add entries under `Unreleased` for user-visible changes.
+4. Release rule:
+   - move `Unreleased` entries into the new version section,
+   - set release date,
+   - update compare links,
+   - create annotated git tag `vX.Y.Z`.
 
 ## Cleanup Rules
 
@@ -47,6 +80,12 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - `README.md`
    - `docs/architecture/ARCHITECTURE.md`
    - `docs/architecture/INVARIANTS.md`
+   - `docs/architecture/DATA-CONTRACTS.md`
    - `docs/agents/AGENT_CONTEXT.md`
+   - `docs/runbooks/DEBUGGING.md`
+   - `docs/runbooks/RELEASE.md`
+   - `docs/adr/ADR-0001-manifest-layering-roadmap.md`
+   - `docs/adr/ADR-0002-command-contract-expansion-roadmap.md`
    - `docs/deprecations.md`
    - `docs/migration-notes.md`
+   - `CHANGELOG.md`

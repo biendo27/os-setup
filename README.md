@@ -35,12 +35,28 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 
 - Architecture: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
 - Invariants: [`docs/architecture/INVARIANTS.md`](docs/architecture/INVARIANTS.md)
+- Data contracts: [`docs/architecture/DATA-CONTRACTS.md`](docs/architecture/DATA-CONTRACTS.md)
 - Agent handoff context: [`docs/agents/AGENT_CONTEXT.md`](docs/agents/AGENT_CONTEXT.md)
 - Cleanup inventory: [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md)
 - Deprecations log: [`docs/deprecations.md`](docs/deprecations.md)
 - Migration notes: [`docs/migration-notes.md`](docs/migration-notes.md)
+- Runbooks:
+  - [`docs/runbooks/DEBUGGING.md`](docs/runbooks/DEBUGGING.md)
+  - [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md)
+- ADR roadmap:
+  - [`docs/adr/ADR-0001-manifest-layering-roadmap.md`](docs/adr/ADR-0001-manifest-layering-roadmap.md)
+  - [`docs/adr/ADR-0002-command-contract-expansion-roadmap.md`](docs/adr/ADR-0002-command-contract-expansion-roadmap.md)
+- Phase 3-4 execution roadmap: [`docs/plans/2026-02-19-phase3-4-execution-roadmap.md`](docs/plans/2026-02-19-phase3-4-execution-roadmap.md)
 - Contribution guide: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- License: [`LICENSE`](LICENSE)
+
+## Release and Changelog
+
+- Versioning uses Semantic Versioning (`vMAJOR.MINOR.PATCH`).
+- Changelog format follows Keep a Changelog in [`CHANGELOG.md`](CHANGELOG.md).
+- Release procedure is documented in [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md).
+- Git workflow policy (trunk-based, PR-only, merge-commit) is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Commands
 
@@ -108,7 +124,7 @@ Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
 Cleanup is tracked in [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md) with three classes:
 
 - `remove-now`: safe to remove immediately (unreferenced, replaced, covered by tests)
-- `archive-first`: historical or compatibility-sensitive; keep for deprecation window first
+- `archive-first`: historical or compatibility-sensitive; archive first when still needed for context
 - `keep`: still part of supported architecture
 
 For deprecation timelines and migration mapping, use:
@@ -116,12 +132,13 @@ For deprecation timelines and migration mapping, use:
 - [`docs/deprecations.md`](docs/deprecations.md)
 - [`docs/migration-notes.md`](docs/migration-notes.md)
 
-## Legacy shims
+## Removed legacy shims
 
-Legacy wrappers are still available during the deprecation window:
+The following wrappers were removed after deprecation window review:
 
-- `bin/setup.sh` -> `bin/ossetup install`
-- `bin/sync-from-home.sh` -> `bin/ossetup sync --apply`
+- `bin/setup.sh` -> use `bin/ossetup install`
+- `bin/sync-from-home.sh` -> use `bin/ossetup sync --apply`
+- `bin/setup-zsh-functions.sh` -> use `bin/ossetup install`
 
 ## Testing
 
@@ -130,3 +147,7 @@ bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
 for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
+
+## License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
