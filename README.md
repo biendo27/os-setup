@@ -37,7 +37,9 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - `install`: installs packages, dotfiles, functions, mise, Android SDK, npm globals, and Bitwarden checks
 - `sync`: syncs local HOME config back into repo (`--preview` by default)
 - `sync-all`: runs `sync` and also refreshes software manifests from the current machine
-- `update-globals`: updates only mise backend global packages (`npm:...`, `cargo:...`, `pipx:...`) and refreshes shims
+- `update-globals`: updates global packages managed by `npm`, `pnpm`, `yarn`, `pipx`, and `dart pub global`
+  - Supports `--dry-run` to preview commands without executing
+  - Interactive confirmation `[Y/n]` (default Yes), use `-y`/`--yes` to skip prompts
 - `verify`: validates current machine state against repo and writes report in `reports/<timestamp>/verify-report.txt`
 - `doctor`: validates manifests and local prerequisites
   - `--require-global` also verifies global `ossetup` shim at `~/.local/bin/ossetup`

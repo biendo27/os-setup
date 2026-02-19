@@ -22,7 +22,7 @@ Commands:
   install           install tools/dotfiles from manifests
   sync              sync from home back to repo (preview by default)
   sync-all          sync config/functions and refresh software manifests
-  update-globals    update only global package tools managed by mise backends
+  update-globals    update global packages from npm/pnpm/yarn/pipx/dart pub
   verify            verify installed state and generate report
   doctor            validate manifests and dependencies
   help              show this help
