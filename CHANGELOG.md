@@ -9,7 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Nothing yet.
+- Git workflow governance files:
+  - `.github/CODEOWNERS`
+  - `.github/pull_request_template.md`
+  - `.github/workflows/pr-title.yml`
+- Workflow governance tests:
+  - `tests/workflow-governance.bats`
+
+### Changed
+
+- CI trigger now runs on `pull_request` and `push` to `main` only.
+- `CONTRIBUTING.md` now defines trunk-based/PR-only/merge-commit workflow policy.
+- `docs/runbooks/RELEASE.md` now enforces release from `main` after PR checks pass.
+- `README.md` now links to workflow policy location.
+- `tests/docs-consistency.bats` now validates workflow governance artifacts.
 
 ## [0.2.0] - 2026-02-19
 

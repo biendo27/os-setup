@@ -56,6 +56,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Versioning uses Semantic Versioning (`vMAJOR.MINOR.PATCH`).
 - Changelog format follows Keep a Changelog in [`CHANGELOG.md`](CHANGELOG.md).
 - Release procedure is documented in [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md).
+- Git workflow policy (trunk-based, PR-only, merge-commit) is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Commands
 

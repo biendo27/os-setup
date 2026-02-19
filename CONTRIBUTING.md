@@ -8,6 +8,21 @@
 4. Update docs when contracts or behavior change.
 5. Update `CHANGELOG.md` for every user-facing change.
 
+## Git Workflow Policy
+
+1. Branching model is trunk-based:
+   - `main` is always release-ready.
+   - work only on short-lived feature branches.
+2. Direct pushes to `main` are not allowed; use pull requests only.
+3. Merge strategy is merge-commit only:
+   - preserve branch lineage on `main`.
+4. PR checks are mandatory before merge:
+   - CI (`validate-ubuntu-latest`, `validate-macos-latest`)
+   - PR title check (`pr-title`)
+5. PR title must follow:
+   - `^(build|chore|ci|docs|feat|fix|perf|refactor|revert|test)(\([a-z0-9._/-]+\))?!?: .+`
+6. Feature branches are auto-deleted after merge.
+
 ## Required Checks
 
 Run all checks before opening or updating PR:

@@ -15,6 +15,9 @@
     "$root/docs/cleanup/cleanup-inventory.md"
     "$root/docs/deprecations.md"
     "$root/docs/migration-notes.md"
+    "$root/.github/CODEOWNERS"
+    "$root/.github/pull_request_template.md"
+    "$root/.github/workflows/pr-title.yml"
     "$root/CONTRIBUTING.md"
     "$root/CHANGELOG.md"
     "$root/LICENSE"
@@ -76,5 +79,16 @@
   run rg -n 'Semantic Versioning' "$contributing"
   [ "$status" -eq 0 ]
   run rg -n '\[Unreleased\]' "$contributing"
+  [ "$status" -eq 0 ]
+}
+
+@test "contributing guide defines trunk-based workflow policy" {
+  local contributing="$BATS_TEST_DIRNAME/../CONTRIBUTING.md"
+
+  run rg -n 'trunk-based' "$contributing"
+  [ "$status" -eq 0 ]
+  run rg -n 'Direct pushes to `main` are not allowed' "$contributing"
+  [ "$status" -eq 0 ]
+  run rg -n 'merge-commit only' "$contributing"
   [ "$status" -eq 0 ]
 }
