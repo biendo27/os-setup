@@ -18,7 +18,7 @@
 }
 
 @test "install dry-run works" {
-  run "$BATS_TEST_DIRNAME/../bin/ossetup" install --dry-run --target linux-debian --profile default
+  run "$BATS_TEST_DIRNAME/../bin/ossetup" install --dry-run --target auto --profile default
   [ "$status" -eq 0 ]
   [[ "$output" == *"dry-run"* ]]
   [[ "$output" == *"install complete"* ]]

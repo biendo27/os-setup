@@ -9,6 +9,11 @@ setup() {
   log="$BATS_TEST_TMPDIR/update-globals.log"
   mkdir -p "$fakebin"
 
+  inject_log() {
+    local script="$1"
+    perl -0pi -e 's#__LOG__#'"$log"'#g' "$script"
+  }
+
   mkfake() {
     local name="$1"
     cat > "$fakebin/$name" <<'EOS'
@@ -16,7 +21,7 @@ setup() {
 set -euo pipefail
 printf '%s %s\n' "$(basename "$0")" "$*" >> "__LOG__"
 EOS
-    sed -i "s#__LOG__#$log#g" "$fakebin/$name"
+    inject_log "$fakebin/$name"
     chmod +x "$fakebin/$name"
   }
 
@@ -32,7 +37,7 @@ if [[ "${1:-}" == "--version" ]]; then
   echo "${YARN_VERSION:-1.22.22}"
 fi
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/yarn"
+  inject_log "$fakebin/yarn"
   chmod +x "$fakebin/yarn"
 
   cat > "$fakebin/dart" <<'EOS'
@@ -53,7 +58,7 @@ PKG
     ;;
 esac
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/dart"
+  inject_log "$fakebin/dart"
   chmod +x "$fakebin/dart"
 }
 
