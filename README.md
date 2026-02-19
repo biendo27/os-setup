@@ -31,6 +31,18 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 ./bin/migrate-npm-globals-to-mise.sh
 ```
 
+## Documentation Index
+
+- Architecture: [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md)
+- Invariants: [`docs/architecture/INVARIANTS.md`](docs/architecture/INVARIANTS.md)
+- Agent handoff context: [`docs/agents/AGENT_CONTEXT.md`](docs/agents/AGENT_CONTEXT.md)
+- Cleanup inventory: [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md)
+- Deprecations log: [`docs/deprecations.md`](docs/deprecations.md)
+- Migration notes: [`docs/migration-notes.md`](docs/migration-notes.md)
+- Contribution guide: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- License: [`LICENSE`](LICENSE)
+
 ## Commands
 
 - `bootstrap`: delegates to `install`
@@ -92,8 +104,35 @@ Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
 - Antigravity profiles (`~/.config/Antigravity/User/profiles`)
 - `functions/*` <-> `~/.config/zsh/functions/*`
 
+## Controlled Cleanup
+
+Cleanup is tracked in [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md) with three classes:
+
+- `remove-now`: safe to remove immediately (unreferenced, replaced, covered by tests)
+- `archive-first`: historical or compatibility-sensitive; archive first when still needed for context
+- `keep`: still part of supported architecture
+
+For deprecation timelines and migration mapping, use:
+
+- [`docs/deprecations.md`](docs/deprecations.md)
+- [`docs/migration-notes.md`](docs/migration-notes.md)
+
+## Removed legacy shims
+
+The following wrappers were removed after deprecation window review:
+
+- `bin/setup.sh` -> use `bin/ossetup install`
+- `bin/sync-from-home.sh` -> use `bin/ossetup sync --apply`
+- `bin/setup-zsh-functions.sh` -> use `bin/ossetup install`
+
 ## Testing
 
 ```bash
 bats tests
+for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
+
+## License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).

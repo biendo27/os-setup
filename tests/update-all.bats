@@ -67,5 +67,6 @@ EOS
   grep -q '^sudo snap refresh$' "$log"
   grep -q '^mise upgrade --yes$' "$log"
   grep -q '^mise reshim$' "$log"
-  ! grep -q '^npm update -g$' "$log"
+  run grep -q '^npm update -g$' "$log"
+  [ "$status" -eq 1 ]
 }
