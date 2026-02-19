@@ -29,7 +29,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install bats-core jq shellcheck ripgrep
+          brew install bats-core jq shellcheck ripgrep bash
 
       - name: Validate manifests parse as JSON-compatible YAML
         run: |

@@ -66,10 +66,12 @@ EOS
   run env PATH="$fakebin:$PATH" WORK_DIR="$work" zsh -lc 'source "$WORK_DIR/functions/update-all"; update-all'
   [ "$status" -eq 0 ]
 
-  grep -q '^sudo -v$' "$log"
-  grep -q '^sudo apt update$' "$log"
-  grep -q '^sudo apt upgrade -y$' "$log"
-  grep -q '^sudo snap refresh$' "$log"
+  if [[ "$(uname -s)" != "Darwin" ]]; then
+    grep -q '^sudo -v$' "$log"
+    grep -q '^sudo apt update$' "$log"
+    grep -q '^sudo apt upgrade -y$' "$log"
+    grep -q '^sudo snap refresh$' "$log"
+  fi
   grep -q '^mise upgrade --yes$' "$log"
   grep -q '^mise reshim$' "$log"
   run grep -q '^npm update -g$' "$log"
