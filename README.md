@@ -27,6 +27,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 ./bin/ossetup sync-all --apply --target auto
 ./bin/ossetup verify --report
 ./bin/ossetup doctor --require-global
+./bin/migrate-npm-globals-to-mise.sh
 ```
 
 ## Commands
@@ -38,6 +39,17 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - `verify`: validates current machine state against repo and writes report in `reports/<timestamp>/verify-report.txt`
 - `doctor`: validates manifests and local prerequisites
   - `--require-global` also verifies global `ossetup` shim at `~/.local/bin/ossetup`
+- `bin/migrate-npm-globals-to-mise.sh`: imports all current `npm -g` packages into the `mise npm:` backend and runs `mise reshim`
+
+## Update Strategy
+
+`functions/update-all` now follows a mise-first workflow for developer tools:
+
+1. System updates: `apt` (if available) and `snap`
+2. Toolchain updates: `mise upgrade --yes`
+3. Shim refresh: `mise reshim`
+
+It intentionally does **not** run `npm update -g` anymore.
 
 Manifest files live under `manifests/*.yaml` and currently use JSON-compatible YAML syntax so they can be parsed with `jq`.
 
