@@ -9,6 +9,11 @@ setup() {
   log="$BATS_TEST_TMPDIR/update-all.log"
   mkdir -p "$fakebin"
 
+  inject_log() {
+    local script="$1"
+    perl -0pi -e 's#__LOG__#'"$log"'#g' "$script"
+  }
+
   mkfake() {
     local name="$1"
     cat > "$fakebin/$name" <<'EOS'
@@ -17,7 +22,7 @@ set -euo pipefail
 printf '%s %s\n' "$(basename "$0")" "$*" >> "__LOG__"
 exit 0
 EOS
-    sed -i "s#__LOG__#$log#g" "$fakebin/$name"
+    inject_log "$fakebin/$name"
     chmod +x "$fakebin/$name"
   }
 
@@ -33,7 +38,7 @@ set -euo pipefail
 printf '%s %s\n' "sudo" "$*" >> "__LOG__"
 exit 0
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/sudo"
+  inject_log "$fakebin/sudo"
   chmod +x "$fakebin/sudo"
 
   cat > "$fakebin/dpkg" <<'EOS'
@@ -44,7 +49,7 @@ if [[ "${1:-}" == "--print-architecture" ]]; then
   echo amd64
 fi
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/dpkg"
+  inject_log "$fakebin/dpkg"
   chmod +x "$fakebin/dpkg"
 
   cat > "$fakebin/dpkg-query" <<'EOS'
@@ -53,7 +58,7 @@ set -euo pipefail
 printf '%s %s\n' "dpkg-query" "$*" >> "__LOG__"
 exit 1
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/dpkg-query"
+  inject_log "$fakebin/dpkg-query"
   chmod +x "$fakebin/dpkg-query"
 }
 

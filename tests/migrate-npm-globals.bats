@@ -8,6 +8,11 @@ setup() {
   log="$BATS_TEST_TMPDIR/migrate.log"
   mkdir -p "$fakebin"
 
+  inject_log() {
+    local script="$1"
+    perl -0pi -e 's#__LOG__#'"$log"'#g' "$script"
+  }
+
   cat > "$fakebin/npm" <<'EOS'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -25,7 +30,7 @@ set -euo pipefail
 printf '%s\n' "$*" >> "__LOG__"
 exit 0
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/mise"
+  inject_log "$fakebin/mise"
   chmod +x "$fakebin/mise"
 
   cat > "$fakebin/jq" <<'EOS'

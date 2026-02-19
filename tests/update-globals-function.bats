@@ -8,12 +8,17 @@ setup() {
   log="$BATS_TEST_TMPDIR/update-globals-function.log"
   mkdir -p "$fakebin"
 
+  inject_log() {
+    local script="$1"
+    perl -0pi -e 's#__LOG__#'"$log"'#g' "$script"
+  }
+
   cat > "$fakebin/ossetup" <<'EOS'
 #!/usr/bin/env bash
 set -euo pipefail
 printf '%s %s\n' "ossetup" "$*" >> "__LOG__"
 EOS
-  sed -i "s#__LOG__#$log#g" "$fakebin/ossetup"
+  inject_log "$fakebin/ossetup"
   chmod +x "$fakebin/ossetup"
 }
 

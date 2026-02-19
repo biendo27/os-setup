@@ -17,7 +17,7 @@ setup() {
 }
 
 @test "canonical install and sync commands remain available" {
-  run "$work/bin/ossetup" install --dry-run --target linux-debian --profile default
+  run "$work/bin/ossetup" install --dry-run --target auto --profile default
   [ "$status" -eq 0 ]
   [[ "$output" == *"install complete"* ]]
 

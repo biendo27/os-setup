@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - CI trigger now runs on `pull_request` and `push` to `main` only.
+- CI test harness is now cross-platform for Linux/macOS (`zsh` dependency + portable test fixtures).
 - `CONTRIBUTING.md` now defines trunk-based/PR-only/merge-commit workflow policy.
 - `docs/runbooks/RELEASE.md` now enforces release from `main` after PR checks pass.
 - `README.md` now links to workflow policy location.
