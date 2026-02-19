@@ -25,6 +25,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 ./bin/ossetup sync --preview
 ./bin/ossetup sync --apply
 ./bin/ossetup sync-all --apply --target auto
+./bin/ossetup update-globals
 ./bin/ossetup verify --report
 ./bin/ossetup doctor --require-global
 ./bin/migrate-npm-globals-to-mise.sh
@@ -36,6 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - `install`: installs packages, dotfiles, functions, mise, Android SDK, npm globals, and Bitwarden checks
 - `sync`: syncs local HOME config back into repo (`--preview` by default)
 - `sync-all`: runs `sync` and also refreshes software manifests from the current machine
+- `update-globals`: updates only mise backend global packages (`npm:...`, `cargo:...`, `pipx:...`) and refreshes shims
 - `verify`: validates current machine state against repo and writes report in `reports/<timestamp>/verify-report.txt`
 - `doctor`: validates manifests and local prerequisites
   - `--require-global` also verifies global `ossetup` shim at `~/.local/bin/ossetup`
@@ -50,6 +52,12 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 3. Shim refresh: `mise reshim`
 
 It intentionally does **not** run `npm update -g` anymore.
+
+If you use zsh functions from this repo, `functions/update-globals` is also provided and delegates to:
+
+```bash
+ossetup update-globals
+```
 
 Manifest files live under `manifests/*.yaml` and currently use JSON-compatible YAML syntax so they can be parsed with `jq`.
 

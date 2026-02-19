@@ -8,6 +8,7 @@ source "$OSSETUP_ROOT/lib/core/common.sh"
 source "$OSSETUP_ROOT/lib/runners/install.sh"
 source "$OSSETUP_ROOT/lib/runners/sync.sh"
 source "$OSSETUP_ROOT/lib/runners/sync-all.sh"
+source "$OSSETUP_ROOT/lib/runners/update-globals.sh"
 source "$OSSETUP_ROOT/lib/runners/verify.sh"
 source "$OSSETUP_ROOT/lib/runners/doctor.sh"
 source "$OSSETUP_ROOT/lib/runners/bootstrap.sh"
@@ -21,6 +22,7 @@ Commands:
   install           install tools/dotfiles from manifests
   sync              sync from home back to repo (preview by default)
   sync-all          sync config/functions and refresh software manifests
+  update-globals    update only global package tools managed by mise backends
   verify            verify installed state and generate report
   doctor            validate manifests and dependencies
   help              show this help
@@ -66,6 +68,9 @@ main() {
       ;;
     sync-all)
       run_sync_all "$@"
+      ;;
+    update-globals)
+      run_update_globals "$@"
       ;;
     verify)
       run_verify "$@"

@@ -1,0 +1,17 @@
+update-globals() {
+  if (( ${+commands[ossetup]} )); then
+    ossetup update-globals "$@"
+    return $?
+  fi
+
+  local repo_root="${OSSETUP_REPO_ROOT:-$HOME/Data/Projects/Program/Scripts/OSSetup}"
+  local cli="$repo_root/bin/ossetup"
+
+  if [[ -x "$cli" ]]; then
+    "$cli" update-globals "$@"
+    return $?
+  fi
+
+  echo "ossetup command not found. Run from repo: ./bin/ossetup update-globals"
+  return 1
+}

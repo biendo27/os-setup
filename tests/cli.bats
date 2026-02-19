@@ -7,6 +7,7 @@
   [[ "$output" == *"install"* ]]
   [[ "$output" == *"sync"* ]]
   [[ "$output" == *"sync-all"* ]]
+  [[ "$output" == *"update-globals"* ]]
   [[ "$output" == *"verify"* ]]
 }
 
