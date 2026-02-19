@@ -64,7 +64,8 @@ EOS
   grep -q '^npm update -g$' "$log"
   grep -q '^pnpm update -g --latest$' "$log"
   grep -q '^yarn --version$' "$log"
-  ! grep -q '^yarn global upgrade$' "$log"
+  run grep -q '^yarn global upgrade$' "$log"
+  [ "$status" -eq 1 ]
   grep -q '^pipx upgrade-all$' "$log"
   grep -q '^dart pub global list$' "$log"
   grep -q '^dart pub global activate melos$' "$log"

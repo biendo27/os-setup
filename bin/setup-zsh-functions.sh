@@ -6,6 +6,8 @@ SRC_DIR="$REPO_ROOT/functions"
 TARGET_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zsh/functions"
 RC_FILE="$HOME/.zshrc"
 
+echo "[DEPRECATED] bin/setup-zsh-functions.sh -> use bin/ossetup install (functions are managed by manifests/dotfiles workflow)"
+
 mkdir -p "$TARGET_DIR"
 
 # Copy all function files (no symlinks)
@@ -19,7 +21,6 @@ if [[ ! -f "$RC_FILE" ]]; then
 fi
 
 MARKER_BEGIN="# >>> custom functions >>>"
-MARKER_END="# <<< custom functions <<<"
 
 if ! grep -q "$MARKER_BEGIN" "$RC_FILE"; then
   cat >> "$RC_FILE" <<'BLOCK'

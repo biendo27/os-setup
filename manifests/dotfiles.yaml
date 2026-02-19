@@ -3,65 +3,55 @@
     {
       "repo": "dotfiles/.zshrc",
       "home": "~/.zshrc",
-      "mode": "644",
-      "backup": true
+      "mode": "644"
     },
     {
       "repo": "dotfiles/.zimrc",
       "home": "~/.zimrc",
-      "mode": "644",
-      "backup": true
+      "mode": "644"
     },
     {
       "repo": "dotfiles/.config/starship.toml",
       "home": "~/.config/starship.toml",
-      "mode": "644",
-      "backup": true
+      "mode": "644"
     },
     {
       "repo": "dotfiles/.config/mise/config.toml",
       "home": "~/.config/mise/config.toml",
-      "mode": "644",
-      "backup": true
+      "mode": "644"
     },
     {
       "repo": "dotfiles/.ssh/config",
       "home": "~/.ssh/config",
-      "mode": "600",
-      "backup": true
+      "mode": "600"
     },
     {
       "repo": "dotfiles/.config/Code/User/settings.json",
       "home": "~/.config/Code/User/settings.json",
-      "mode": "644",
-      "backup": true
+      "mode": "644"
     },
     {
       "repo": "dotfiles/.config/Code/User/keybindings.json",
       "home": "~/.config/Code/User/keybindings.json",
-      "mode": "644",
-      "backup": true
+      "mode": "644"
     },
     {
       "repo": "dotfiles/.config/Code/User/profiles",
       "home": "~/.config/Code/User/profiles",
       "type": "dir",
-      "optional": true,
-      "backup": true
+      "optional": true
     },
     {
       "repo": "dotfiles/.config/Cursor/User/profiles",
       "home": "~/.config/Cursor/User/profiles",
       "type": "dir",
-      "optional": true,
-      "backup": true
+      "optional": true
     },
     {
       "repo": "dotfiles/.config/Antigravity/User/profiles",
       "home": "~/.config/Antigravity/User/profiles",
       "type": "dir",
-      "optional": true,
-      "backup": true
+      "optional": true
     }
   ],
   "functions": {

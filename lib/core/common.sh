@@ -161,9 +161,3 @@ prepare_report_path() {
   mkdir -p "$dir"
   printf '%s\n' "$dir/$name"
 }
-
-json_read() {
-  local file="$1"
-  local expr="$2"
-  jq -r "$expr" "$file"
-}
