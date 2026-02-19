@@ -1,8 +1,8 @@
 @anthropic-ai/claude-code
+@openai/codex
 claudekit-cli
 corepack
 npm
-@openai/codex
 opencode-ai
 repomix
 rmbg-cli
