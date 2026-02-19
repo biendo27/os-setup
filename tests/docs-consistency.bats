@@ -11,6 +11,7 @@
     "$root/docs/migration-notes.md"
     "$root/CONTRIBUTING.md"
     "$root/CHANGELOG.md"
+    "$root/LICENSE"
   )
 
   local path
@@ -19,7 +20,7 @@
   done
 }
 
-@test "README links to canonical docs and cleanup inventory" {
+@test "README links to canonical docs, cleanup inventory, and license" {
   local readme="$BATS_TEST_DIRNAME/../README.md"
 
   run rg -n 'docs/architecture/ARCHITECTURE.md' "$readme"
@@ -32,11 +33,15 @@
   [ "$status" -eq 0 ]
   run rg -n 'CONTRIBUTING.md' "$readme"
   [ "$status" -eq 0 ]
+  run rg -n '\(LICENSE\)' "$readme"
+  [ "$status" -eq 0 ]
 }
 
-@test "deprecation log tracks legacy shim scripts" {
+@test "deprecation log tracks removed legacy shim scripts" {
   local deprecations="$BATS_TEST_DIRNAME/../docs/deprecations.md"
 
+  run rg -n 'Completed Removals' "$deprecations"
+  [ "$status" -eq 0 ]
   run rg -n 'bin/setup.sh' "$deprecations"
   [ "$status" -eq 0 ]
   run rg -n 'bin/sync-from-home.sh' "$deprecations"

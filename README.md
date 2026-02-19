@@ -41,6 +41,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Migration notes: [`docs/migration-notes.md`](docs/migration-notes.md)
 - Contribution guide: [`CONTRIBUTING.md`](CONTRIBUTING.md)
 - Changelog: [`CHANGELOG.md`](CHANGELOG.md)
+- License: [`LICENSE`](LICENSE)
 
 ## Commands
 
@@ -108,7 +109,7 @@ Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
 Cleanup is tracked in [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md) with three classes:
 
 - `remove-now`: safe to remove immediately (unreferenced, replaced, covered by tests)
-- `archive-first`: historical or compatibility-sensitive; keep for deprecation window first
+- `archive-first`: historical or compatibility-sensitive; archive first when still needed for context
 - `keep`: still part of supported architecture
 
 For deprecation timelines and migration mapping, use:
@@ -116,12 +117,13 @@ For deprecation timelines and migration mapping, use:
 - [`docs/deprecations.md`](docs/deprecations.md)
 - [`docs/migration-notes.md`](docs/migration-notes.md)
 
-## Legacy shims
+## Removed legacy shims
 
-Legacy wrappers are still available during the deprecation window:
+The following wrappers were removed after deprecation window review:
 
-- `bin/setup.sh` -> `bin/ossetup install`
-- `bin/sync-from-home.sh` -> `bin/ossetup sync --apply`
+- `bin/setup.sh` -> use `bin/ossetup install`
+- `bin/sync-from-home.sh` -> use `bin/ossetup sync --apply`
+- `bin/setup-zsh-functions.sh` -> use `bin/ossetup install`
 
 ## Testing
 
@@ -130,3 +132,7 @@ bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
 for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
+
+## License
+
+This project is licensed under the MIT License. See [`LICENSE`](LICENSE).

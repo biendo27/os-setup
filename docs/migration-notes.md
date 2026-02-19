@@ -6,15 +6,16 @@ Last updated: 2026-02-19
 
 | Legacy entrypoint | Current entrypoint | Notes |
 | --- | --- | --- |
-| `bin/setup.sh` | `bin/ossetup install` | Shim remains active during deprecation window |
-| `bin/sync-from-home.sh` | `bin/ossetup sync --apply` | Shim remains active during deprecation window |
-| `bin/setup-zsh-functions.sh` | `bin/ossetup install` | Legacy utility retained short-term for compatibility |
+| `bin/setup.sh` | `bin/ossetup install` | Legacy shim removed on 2026-02-19 |
+| `bin/sync-from-home.sh` | `bin/ossetup sync --apply` | Legacy shim removed on 2026-02-19 |
+| `bin/setup-zsh-functions.sh` | `bin/ossetup install` | Legacy shim removed on 2026-02-19 |
 
 ## Non-Breaking Cleanup in This Batch
 
 1. Removed unused helper `json_read()` from `lib/core/common.sh`.
 2. Removed redundant `backup` fields from `manifests/dotfiles.yaml`.
-3. Added contract/dead-reference/docs-consistency tests to prevent regressions.
+3. Removed deprecated shim scripts from `bin/`.
+4. Added contract/dead-reference/docs-consistency tests to prevent regressions.
 
 ## Operator Guidance
 

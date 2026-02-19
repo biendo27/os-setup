@@ -15,8 +15,10 @@
   - `docs/migration-notes.md`
 - New test coverage:
   - `tests/dead-references.bats`
-  - `tests/legacy-shims.bats`
+  - `tests/deprecated-removal.bats`
   - `tests/docs-consistency.bats`
+- License file:
+  - `LICENSE` (MIT)
 
 ### Changed
 
@@ -29,7 +31,7 @@
 
 - Unused helper `json_read()` from `lib/core/common.sh`.
 - Redundant `backup` keys from `manifests/dotfiles.yaml`.
-
-### Deprecated
-
-- `bin/setup-zsh-functions.sh` is now tracked as deprecated utility in compatibility window.
+- Deprecated shim scripts:
+  - `bin/setup.sh`
+  - `bin/sync-from-home.sh`
+  - `bin/setup-zsh-functions.sh`

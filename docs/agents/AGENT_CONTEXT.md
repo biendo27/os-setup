@@ -47,5 +47,5 @@ for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do
 
 - Preview/apply mutation boundaries.
 - Exit code semantics in `lib/core/common.sh`.
-- Legacy shim behavior during deprecation window.
+- Migration mapping for removed/deprecated entrypoints.
 - Secrets policy (reference-only, no plaintext secrets in repo).
