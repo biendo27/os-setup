@@ -87,6 +87,9 @@ Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
 - `dotfiles/.config/mise/config.toml` <-> `~/.config/mise/config.toml`
 - `dotfiles/.ssh/config` <-> `~/.ssh/config`
 - VS Code settings/keybindings
+- VS Code profiles (`~/.config/Code/User/profiles`)
+- Cursor profiles (`~/.config/Cursor/User/profiles`)
+- Antigravity profiles (`~/.config/Antigravity/User/profiles`)
 - `functions/*` <-> `~/.config/zsh/functions/*`
 
 ## Testing

@@ -97,3 +97,66 @@ EOS
   [ "$(jq -r '.packages.snap[0]' "$work/manifests/targets/linux-debian.yaml")" = "discord" ]
   [ "$(jq -r '.npm_globals[1]' "$work/manifests/targets/linux-debian.yaml")" = "my-npm-tool" ]
 }
+
+@test "sync apply copies profile directory entries into repo" {
+  cat > "$work/manifests/dotfiles.yaml" <<'JSON'
+{
+  "entries": [
+    {
+      "repo": "dotfiles/.config/Cursor/User/profiles",
+      "home": "~/.config/Cursor/User/profiles",
+      "type": "dir",
+      "optional": true
+    }
+  ],
+  "functions": {
+    "repo_dir": "functions",
+    "home_dir": "~/.config/zsh/functions"
+  }
+}
+JSON
+
+  mkdir -p "$OSSETUP_HOME_DIR/.config/Cursor/User/profiles/alpha"
+  cat > "$OSSETUP_HOME_DIR/.config/Cursor/User/profiles/alpha/settings.json" <<'JSON'
+{"editor.fontSize": 14}
+JSON
+
+  run "$work/bin/ossetup" sync --apply
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"SYNCED ~/.config/Cursor/User/profiles -> dotfiles/.config/Cursor/User/profiles"* ]]
+  [ -f "$work/dotfiles/.config/Cursor/User/profiles/alpha/settings.json" ]
+}
+
+@test "sync preview reports changed profile directory without mutating repo" {
+  cat > "$work/manifests/dotfiles.yaml" <<'JSON'
+{
+  "entries": [
+    {
+      "repo": "dotfiles/.config/Antigravity/User/profiles",
+      "home": "~/.config/Antigravity/User/profiles",
+      "type": "dir",
+      "optional": true
+    }
+  ],
+  "functions": {
+    "repo_dir": "functions",
+    "home_dir": "~/.config/zsh/functions"
+  }
+}
+JSON
+
+  mkdir -p "$work/dotfiles/.config/Antigravity/User/profiles/default"
+  printf 'repo-version\n' > "$work/dotfiles/.config/Antigravity/User/profiles/default/settings.json"
+
+  mkdir -p "$OSSETUP_HOME_DIR/.config/Antigravity/User/profiles/default"
+  printf 'home-version\n' > "$OSSETUP_HOME_DIR/.config/Antigravity/User/profiles/default/settings.json"
+
+  before="$(sha256sum "$work/dotfiles/.config/Antigravity/User/profiles/default/settings.json" | awk '{print $1}')"
+
+  run "$work/bin/ossetup" sync --preview
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"CHANGED ~/.config/Antigravity/User/profiles -> dotfiles/.config/Antigravity/User/profiles"* ]]
+
+  after="$(sha256sum "$work/dotfiles/.config/Antigravity/User/profiles/default/settings.json" | awk '{print $1}')"
+  [ "$before" = "$after" ]
+}

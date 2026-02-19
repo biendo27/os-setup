@@ -30,26 +30,58 @@ verify_dotfiles() {
   local entry
 
   while IFS= read -r entry; do
-    local repo_rel home_rel
+    local repo_rel home_rel entry_type optional
     repo_rel="$(jq -r '.repo' <<<"$entry")"
     home_rel="$(jq -r '.home' <<<"$entry")"
+    entry_type="$(jq -r '.type // "file"' <<<"$entry")"
+    optional="$(jq -r '.optional // false' <<<"$entry")"
 
     local repo_file home_file
     repo_file="$OSSETUP_ROOT/$repo_rel"
     home_file="$(expand_home_path "$home_rel")"
 
-    if [[ ! -f "$home_file" ]]; then
-      printf 'FAIL dotfile missing %s\n' "$home_rel" >>"$report"
-      eval "$failures_ref=$(( $failures_ref + 1 ))"
-      continue
-    fi
+    case "$entry_type" in
+      file)
+        if [[ ! -f "$home_file" ]]; then
+          if [[ "$optional" == "true" ]]; then
+            printf 'PASS optional dotfile missing %s\n' "$home_rel" >>"$report"
+          else
+            printf 'FAIL dotfile missing %s\n' "$home_rel" >>"$report"
+            eval "$failures_ref=$(( $failures_ref + 1 ))"
+          fi
+          continue
+        fi
 
-    if files_equal "$repo_file" "$home_file"; then
-      printf 'PASS dotfile %s\n' "$home_rel" >>"$report"
-    else
-      printf 'FAIL dotfile mismatch %s\n' "$home_rel" >>"$report"
-      eval "$failures_ref=$(( $failures_ref + 1 ))"
-    fi
+        if files_equal "$repo_file" "$home_file"; then
+          printf 'PASS dotfile %s\n' "$home_rel" >>"$report"
+        else
+          printf 'FAIL dotfile mismatch %s\n' "$home_rel" >>"$report"
+          eval "$failures_ref=$(( $failures_ref + 1 ))"
+        fi
+        ;;
+      dir)
+        if [[ ! -d "$home_file" ]]; then
+          if [[ "$optional" == "true" ]]; then
+            printf 'PASS optional dotdir missing %s\n' "$home_rel" >>"$report"
+          else
+            printf 'FAIL dotdir missing %s\n' "$home_rel" >>"$report"
+            eval "$failures_ref=$(( $failures_ref + 1 ))"
+          fi
+          continue
+        fi
+
+        if [[ -d "$repo_file" ]] && diff -qr "$repo_file" "$home_file" >/dev/null 2>&1; then
+          printf 'PASS dotdir %s\n' "$home_rel" >>"$report"
+        else
+          printf 'FAIL dotdir mismatch %s\n' "$home_rel" >>"$report"
+          eval "$failures_ref=$(( $failures_ref + 1 ))"
+        fi
+        ;;
+      *)
+        printf 'FAIL dotfile invalid-type %s (%s)\n' "$home_rel" "$entry_type" >>"$report"
+        eval "$failures_ref=$(( $failures_ref + 1 ))"
+        ;;
+    esac
   done < <(dotfiles_entries)
 }
 

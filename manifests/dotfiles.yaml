@@ -41,6 +41,27 @@
       "home": "~/.config/Code/User/keybindings.json",
       "mode": "644",
       "backup": true
+    },
+    {
+      "repo": "dotfiles/.config/Code/User/profiles",
+      "home": "~/.config/Code/User/profiles",
+      "type": "dir",
+      "optional": true,
+      "backup": true
+    },
+    {
+      "repo": "dotfiles/.config/Cursor/User/profiles",
+      "home": "~/.config/Cursor/User/profiles",
+      "type": "dir",
+      "optional": true,
+      "backup": true
+    },
+    {
+      "repo": "dotfiles/.config/Antigravity/User/profiles",
+      "home": "~/.config/Antigravity/User/profiles",
+      "type": "dir",
+      "optional": true,
+      "backup": true
     }
   ],
   "functions": {
