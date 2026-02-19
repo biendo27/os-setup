@@ -38,6 +38,6 @@
   [ "$status" -eq 0 ]
   run rg -n '^\[0\.2\.0\]: https://github\.com/biendo27/os-setup/compare/v0\.1\.0\.\.\.v0\.2\.0$' "$changelog"
   [ "$status" -eq 0 ]
-  run rg -n '^\[0\.1\.0\]: https://github\.com/biendo27/os-setup/releases/tag/v0\.1\.0$' "$changelog"
+  run rg -n '^\[0\.1\.0\]: https://github\.com/biendo27/os-setup/tree/v0\.1\.0$' "$changelog"
   [ "$status" -eq 0 ]
 }
