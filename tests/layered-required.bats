@@ -32,7 +32,11 @@ setup() {
 }
 
 @test "doctor fails fast when layered target is missing" {
-  rm -f "$work/manifests/layers/targets/linux-debian.yaml"
+  local target="linux-debian"
+  if [[ "$(uname -s)" == "Darwin" ]]; then
+    target="macos"
+  fi
+  rm -f "$work/manifests/layers/targets/$target.yaml"
 
   run "$work/bin/ossetup" doctor
   [ "$status" -eq 65 ]
