@@ -1,6 +1,6 @@
 # Migration Notes
 
-Last updated: 2026-02-20
+Last updated: 2026-02-20 (Phase 4 prep)
 
 ## Legacy Command Mapping
 
@@ -27,7 +27,7 @@ Current model is layered-first with compatibility fallback:
 
 1. Adapter introduced in `v0.3.0`.
 2. Adapter retained through `v0.4.0`.
-3. Earliest adapter removal target is `v0.5.0`, after migration tests and dead-reference checks are green.
+3. Final adapter and legacy-manifest removal is scheduled for `v1.0.0` hard cutover.
 
 ## New Command Contracts
 
@@ -35,6 +35,16 @@ Current model is layered-first with compatibility fallback:
 - `ossetup sync-all --scope config|state|all`
 - `ossetup promote --target <target> --scope packages|npm_globals|all --from-state latest|<dir> --preview|--apply`
 - `ossetup verify --strict`
+
+## Final Pre-Cutover Checklist (`v1.0.0`)
+
+1. Ensure layered manifests exist for every supported target:
+   - `manifests/layers/core.yaml`
+   - `manifests/layers/targets/linux-debian.yaml`
+   - `manifests/layers/targets/macos.yaml`
+2. Validate layered install path:
+   - `OSSETUP_REQUIRE_LAYERED=1 ./bin/ossetup install --dry-run --target auto --profile default`
+3. Ensure no hidden runtime dependence on `manifests/targets/*.yaml`.
 
 ## Operator Guidance
 
