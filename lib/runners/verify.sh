@@ -114,13 +114,106 @@ verify_functions() {
   done < <(find "$repo_dir" -maxdepth 1 -type f | sort)
 }
 
+sorted_manifest_lines() {
+  local json_array="$1"
+  jq -r '.[]? // empty' <<<"$json_array" | sed '/^\s*$/d' | sort -u
+}
+
+sorted_state_lines() {
+  local file="$1"
+  [[ -f "$file" ]] || return 1
+  sed '/^\s*$/d' "$file" | sort -u
+}
+
+verify_strict_array_drift() {
+  local report="$1"
+  local failures_ref="$2"
+  local label="$3"
+  local json_array="$4"
+  local state_file="$5"
+
+  if [[ ! -f "$state_file" ]]; then
+    printf 'FAIL strict missing-state %s (%s)\n' "$label" "${state_file#$OSSETUP_ROOT/}" >>"$report"
+    eval "$failures_ref=$(( $failures_ref + 1 ))"
+    return 0
+  fi
+
+  local manifest_tmp state_tmp
+  manifest_tmp="$(mktemp)"
+  state_tmp="$(mktemp)"
+  sorted_manifest_lines "$json_array" >"$manifest_tmp"
+  sorted_state_lines "$state_file" >"$state_tmp"
+
+  if cmp -s "$manifest_tmp" "$state_tmp"; then
+    printf 'PASS strict %s\n' "$label" >>"$report"
+  else
+    printf 'FAIL strict drift %s\n' "$label" >>"$report"
+    eval "$failures_ref=$(( $failures_ref + 1 ))"
+  fi
+
+  rm -f "$manifest_tmp" "$state_tmp"
+}
+
+verify_strict_contracts() {
+  local report="$1"
+  local failures_ref="$2"
+
+  local target
+  target="$(detect_target auto)"
+  local manifest_json
+  manifest_json="$(resolve_target_manifest_json "$target" "${OSSETUP_HOST_ID:-}")"
+  local state_dir="$OSSETUP_ROOT/manifests/state/$target"
+
+  if [[ ! -d "$state_dir" ]]; then
+    printf 'FAIL strict missing-state-dir %s\n' "${state_dir#$OSSETUP_ROOT/}" >>"$report"
+    eval "$failures_ref=$(( $failures_ref + 1 ))"
+    return 0
+  fi
+
+  case "$target" in
+    linux-debian)
+      verify_strict_array_drift "$report" "$failures_ref" "packages.apt" \
+        "$(jq -c '.packages.apt // []' <<<"$manifest_json")" \
+        "$state_dir/apt-manual.txt"
+      verify_strict_array_drift "$report" "$failures_ref" "packages.flatpak" \
+        "$(jq -c '.packages.flatpak // []' <<<"$manifest_json")" \
+        "$state_dir/flatpak-apps.txt"
+      verify_strict_array_drift "$report" "$failures_ref" "packages.snap" \
+        "$(jq -c '.packages.snap // []' <<<"$manifest_json")" \
+        "$state_dir/snap-list.txt"
+      ;;
+    macos)
+      verify_strict_array_drift "$report" "$failures_ref" "packages.brew" \
+        "$(jq -c '.packages.brew // []' <<<"$manifest_json")" \
+        "$state_dir/brew-formula.txt"
+      verify_strict_array_drift "$report" "$failures_ref" "packages.brew_cask" \
+        "$(jq -c '.packages.brew_cask // []' <<<"$manifest_json")" \
+        "$state_dir/brew-casks.txt"
+      ;;
+    *)
+      printf 'FAIL strict unsupported-target %s\n' "$target" >>"$report"
+      eval "$failures_ref=$(( $failures_ref + 1 ))"
+      return 0
+      ;;
+  esac
+
+  verify_strict_array_drift "$report" "$failures_ref" "npm_globals" \
+    "$(jq -c '.npm_globals // []' <<<"$manifest_json")" \
+    "$state_dir/npm-globals.txt"
+}
+
 run_verify() {
   local write_report=0
+  local strict=0
 
   while (( $# > 0 )); do
     case "$1" in
       --report)
         write_report=1
+        shift
+        ;;
+      --strict)
+        strict=1
         shift
         ;;
       *)
@@ -137,6 +230,9 @@ run_verify() {
   verify_commands "$report" failures
   verify_dotfiles "$report" failures
   verify_functions "$report" failures
+  if (( strict == 1 )); then
+    verify_strict_contracts "$report" failures
+  fi
 
   if (( failures == 0 )); then
     printf 'PASS summary failures=0\n' >>"$report"
@@ -149,8 +245,15 @@ run_verify() {
   fi
 
   if (( failures > 0 )); then
+    if (( strict == 1 )); then
+      die "$E_VERIFY" "strict verification failed (failures=$failures)"
+    fi
     die "$E_VERIFY" "verification failed (failures=$failures)"
   fi
 
-  info "verification passed"
+  if (( strict == 1 )); then
+    info "verification passed (strict)"
+  else
+    info "verification passed"
+  fi
 }

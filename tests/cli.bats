@@ -7,8 +7,12 @@
   [[ "$output" == *"install"* ]]
   [[ "$output" == *"sync"* ]]
   [[ "$output" == *"sync-all"* ]]
+  [[ "$output" == *"promote"* ]]
   [[ "$output" == *"update-globals"* ]]
   [[ "$output" == *"verify"* ]]
+  [[ "$output" == *"--host"* ]]
+  [[ "$output" == *"--scope"* ]]
+  [[ "$output" == *"--strict"* ]]
 }
 
 @test "ossetup rejects unknown command" {

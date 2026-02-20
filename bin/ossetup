@@ -8,6 +8,7 @@ source "$OSSETUP_ROOT/lib/core/common.sh"
 source "$OSSETUP_ROOT/lib/runners/install.sh"
 source "$OSSETUP_ROOT/lib/runners/sync.sh"
 source "$OSSETUP_ROOT/lib/runners/sync-all.sh"
+source "$OSSETUP_ROOT/lib/runners/promote.sh"
 source "$OSSETUP_ROOT/lib/runners/update-globals.sh"
 source "$OSSETUP_ROOT/lib/runners/verify.sh"
 source "$OSSETUP_ROOT/lib/runners/doctor.sh"
@@ -22,6 +23,7 @@ Commands:
   install           install tools/dotfiles from manifests
   sync              sync from home back to repo (preview by default)
   sync-all          sync config/functions and refresh software manifests
+  promote           promote captured state snapshots into layered manifests
   update-globals    update global packages from npm/pnpm/yarn/pipx/dart pub
   verify            verify installed state and generate report
   doctor            validate manifests and dependencies
@@ -30,6 +32,7 @@ Commands:
 Install options:
   --profile <name>  Profile name (default: default)
   --target <name>   Target: auto|linux-debian|macos (default: auto)
+  --host <id|auto>  Host layer id override (default: auto)
   --dry-run         Print actions only
 
 Sync options:
@@ -40,8 +43,17 @@ Sync-all options:
   --preview         Preview sync and software manifest refresh (default)
   --apply           Apply sync and refresh software manifests
   --target <name>   Target: auto|linux-debian|macos (default: auto)
+  --scope <name>    Scope: config|state|all (default: all)
+
+Promote options:
+  --target <name>   Target: auto|linux-debian|macos (required)
+  --scope <name>    Scope: packages|npm_globals|all (default: all)
+  --from-state <x>  State source: latest|<dir> (default: latest)
+  --preview         Print promote plan only (default)
+  --apply           Apply promote updates to layered target manifest
 
 Verify options:
+  --strict          Fail on state/manifest contract drift
   --report          Print report path
 
 Doctor options:
@@ -68,6 +80,9 @@ main() {
       ;;
     sync-all)
       run_sync_all "$@"
+      ;;
+    promote)
+      run_promote "$@"
       ;;
     update-globals)
       run_update_globals "$@"

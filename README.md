@@ -21,12 +21,15 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 ```bash
 ./bin/ossetup help
 ./bin/ossetup doctor
-./bin/ossetup install --profile default --target auto
+./bin/ossetup install --profile default --target auto --host auto
 ./bin/ossetup sync --preview
 ./bin/ossetup sync --apply
-./bin/ossetup sync-all --apply --target auto
+./bin/ossetup sync-all --apply --target auto --scope all
+./bin/ossetup promote --target auto --scope all --from-state latest --preview
+./bin/ossetup promote --target auto --scope all --from-state latest --apply
 ./bin/ossetup update-globals
 ./bin/ossetup verify --report
+./bin/ossetup verify --strict --report
 ./bin/ossetup doctor --require-global
 ./bin/migrate-npm-globals-to-mise.sh
 ```
@@ -56,21 +59,31 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Versioning uses Semantic Versioning (`vMAJOR.MINOR.PATCH`).
 - Changelog format follows Keep a Changelog in [`CHANGELOG.md`](CHANGELOG.md).
 - Release procedure is documented in [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md).
+- Release integrity policy requires publishing:
+  - `SHA256SUMS`
+  - `SHA256SUMS.asc` (detached GPG signature of checksum file)
 - Git workflow policy (trunk-based, PR-only, merge-commit) is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Commands
 
 - `bootstrap`: delegates to `install`
 - `install`: installs packages, dotfiles, functions, mise, Android SDK, npm globals, and Bitwarden checks
+  - `--host <id|auto>` resolves host overlay (`auto` uses normalized hostname)
 - `sync`: syncs local HOME config back into repo (`--preview` by default)
-- `sync-all`: runs `sync` and also refreshes software manifests from the current machine
+- `sync-all`: runs `sync` and/or refreshes software manifests from the current machine
+  - `--scope config|state|all` (default `all`)
+- `promote`: promotes captured `manifests/state/<target>/*` snapshots into `manifests/layers/targets/<target>.yaml`
+  - `--preview` shows plan only, `--apply` writes manifests
 - `update-globals`: updates global packages managed by `npm`, `pnpm`, `yarn`, `pipx`, and `dart pub global`
   - Supports `--dry-run` to preview commands without executing
   - Interactive confirmation `[Y/n]` (default Yes), use `-y`/`--yes` to skip prompts
 - `verify`: validates current machine state against repo and writes report in `reports/<timestamp>/verify-report.txt`
+  - `--strict` also enforces state/manifest drift checks
 - `doctor`: validates manifests and local prerequisites
   - `--require-global` also verifies global `ossetup` shim at `~/.local/bin/ossetup`
 - `bin/migrate-npm-globals-to-mise.sh`: imports all current `npm -g` packages into the `mise npm:` backend and runs `mise reshim`
+- `bin/release-checksums.sh`: generates deterministic `SHA256SUMS` and optional GPG signature
+- `bin/release-verify.sh`: verifies `SHA256SUMS` + `SHA256SUMS.asc` against release artifacts
 
 ## Update Strategy
 
@@ -88,7 +101,13 @@ If you use zsh functions from this repo, `functions/update-globals` is also prov
 ossetup update-globals
 ```
 
-Manifest files live under `manifests/*.yaml` and currently use JSON-compatible YAML syntax so they can be parsed with `jq`.
+Manifest files use JSON-compatible YAML syntax and currently live under:
+
+- `manifests/profiles/*.yaml`
+- `manifests/targets/*.yaml` (legacy compatibility path)
+- `manifests/layers/core.yaml`
+- `manifests/layers/targets/*.yaml`
+- `manifests/layers/hosts/*.yaml`
 
 ## Global Command
 
@@ -145,7 +164,7 @@ The following wrappers were removed after deprecation window review:
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 ## License

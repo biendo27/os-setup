@@ -56,6 +56,10 @@
   [ "$status" -eq 0 ]
   run rg -n '\(LICENSE\)' "$readme"
   [ "$status" -eq 0 ]
+  run rg -n 'SHA256SUMS' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'SHA256SUMS.asc' "$readme"
+  [ "$status" -eq 0 ]
 }
 
 @test "deprecation log tracks removed legacy shim scripts" {
@@ -91,4 +95,31 @@
   [ "$status" -eq 0 ]
   run rg -n 'merge-commit only' "$contributing"
   [ "$status" -eq 0 ]
+}
+
+@test "layered manifest baseline files exist" {
+  local root="$BATS_TEST_DIRNAME/.."
+
+  [ -f "$root/manifests/layers/core.yaml" ]
+  [ -f "$root/manifests/layers/targets/linux-debian.yaml" ]
+  [ -f "$root/manifests/layers/targets/macos.yaml" ]
+  [ -f "$root/manifests/layers/hosts/.gitkeep" ]
+}
+
+@test "release runbook defines checksum and signature policy" {
+  local runbook="$BATS_TEST_DIRNAME/../docs/runbooks/RELEASE.md"
+
+  run rg -n 'SHA256SUMS' "$runbook"
+  [ "$status" -eq 0 ]
+  run rg -n 'SHA256SUMS.asc' "$runbook"
+  [ "$status" -eq 0 ]
+  run rg -n 'release-checksums.sh' "$runbook"
+  [ "$status" -eq 0 ]
+  run rg -n 'release-verify.sh' "$runbook"
+  [ "$status" -eq 0 ]
+}
+
+@test "release integrity scripts exist" {
+  [ -x "$BATS_TEST_DIRNAME/../bin/release-checksums.sh" ]
+  [ -x "$BATS_TEST_DIRNAME/../bin/release-verify.sh" ]
 }

@@ -30,7 +30,7 @@ Run all checks before opening or updating PR:
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 If available locally, also run:
@@ -54,7 +54,19 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - move `Unreleased` entries into the new version section,
    - set release date,
    - update compare links,
-   - create annotated git tag `vX.Y.Z`.
+   - create annotated git tag `vX.Y.Z`,
+   - publish release assets with:
+     - `SHA256SUMS`
+     - `SHA256SUMS.asc` (detached GPG signature).
+
+## Release Integrity Policy
+
+1. `SHA256` checksums are mandatory for every release artifact.
+2. Checksum file must be signed using GPG detached ASCII signature.
+3. Recommended command sequence:
+   - `./bin/release-checksums.sh --assets-dir <release-dir> --sign-key <key-id>`
+   - `./bin/release-verify.sh --assets-dir <release-dir>`
+4. `SHA512` is optional and only required for explicit compliance contexts.
 
 ## Cleanup Rules
 
@@ -67,6 +79,10 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - deprecation notice,
    - migration notes,
    - test coverage.
+4. Layered manifest adapter lifecycle:
+   - introduced in `v0.3.0`,
+   - kept through `v0.4.0`,
+   - eligible for removal earliest in `v0.5.0`.
 
 ## Testing Standards
 
