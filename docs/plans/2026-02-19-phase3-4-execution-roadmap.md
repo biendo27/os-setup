@@ -4,14 +4,14 @@
 
 1. Phase 3A implemented:
    - layered manifests (`core/targets/hosts`) and deterministic resolver shipped.
-   - compatibility adapter from legacy targets is active.
+   - compatibility adapter from legacy targets shipped for transition window.
 2. Phase 3B implemented:
    - `install --host`, `sync-all --scope`, `promote`, `verify --strict` shipped with contract tests.
 3. Phase 3C/3D updated:
    - architecture/runbook/docs refreshed.
    - CI and tests expanded for new contracts.
-4. Phase 4 remains partially open:
-   - adapter removal and legacy dead-reference cleanup are deferred to earliest `v0.5.0`.
+4. Phase 4 hard cutover:
+   - adapter and legacy manifest path removed in `v1.0.0`.
 
 ## Scope
 
@@ -85,7 +85,8 @@ Acceptance:
 
 Deliverables:
 
-- explicit deprecation notes for compatibility adapters
+- layered-only runtime contract
+- removal of legacy manifest path (`manifests/targets/*.yaml`)
 - staged removal checklist in cleanup inventory
 
 Acceptance:

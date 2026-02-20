@@ -10,12 +10,7 @@ setup() {
 }
 
 target_manifest_for_state() {
-  local layered="$work/manifests/layers/targets/linux-debian.yaml"
-  if [[ -f "$layered" ]]; then
-    printf '%s\n' "$layered"
-    return 0
-  fi
-  printf '%s\n' "$work/manifests/targets/linux-debian.yaml"
+  printf '%s\n' "$work/manifests/layers/targets/linux-debian.yaml"
 }
 
 write_fake_state_tools() {

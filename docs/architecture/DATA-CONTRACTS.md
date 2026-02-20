@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define contract boundaries for desired state, observed state snapshots, and compatibility paths during layered-manifest migration.
+Define contract boundaries for desired state and observed state snapshots in the layered-only model.
 
 ## Profiles (`manifests/profiles/*.yaml`)
 
@@ -49,15 +49,6 @@ Define contract boundaries for desired state, observed state snapshots, and comp
 3. Array values merge by ordered union (left to right, de-duplicated).
 4. Scalar/non-object values from later layer override earlier layer.
 
-## Legacy Targets (`manifests/targets/*.yaml`) (Compatibility)
-
-- Scope: fallback desired-state source when layered files are absent.
-- Contract shape matches target layer contract:
-  - `packages` object
-  - `npm_globals` array
-- Adapter behavior:
-  - runtime uses legacy targets only when layered path for target is unavailable.
-
 ## Dotfiles (`manifests/dotfiles.yaml`)
 
 - Scope: file/dir sync and apply mapping between repo and home.
@@ -99,12 +90,6 @@ Define contract boundaries for desired state, observed state snapshots, and comp
 - Behavior:
   - produced by `sync-all` state export provider.
   - consumed by `promote` and `verify --strict`.
-
-## Compatibility Lifecycle
-
-1. Layered model introduced in `v0.3.0`.
-2. Legacy adapter is kept through `v0.4.0`.
-3. Legacy adapter removal is eligible earliest in `v0.5.0` after migration safety checks are green.
 
 ## Change Management
 

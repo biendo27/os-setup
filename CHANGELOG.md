@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-02-20
+
+### Changed
+
+- Runtime is now layered-only; target resolution requires:
+  - `manifests/layers/core.yaml`
+  - `manifests/layers/targets/<target>.yaml`
+- `install`, `doctor`, `sync-all`, `promote`, and `verify --strict` now operate only on layered manifests.
+- CI and local verification commands now validate layered manifests only.
+- Canonical docs were updated to remove compatibility-window guidance.
+
+### Removed
+
+- Layered migration compatibility adapter and all runtime fallback reads from `manifests/targets/*.yaml`.
+- Legacy desired-state files:
+  - `manifests/targets/linux-debian.yaml`
+  - `manifests/targets/macos.yaml`
+- Transitional docs:
+  - `docs/deprecations.md`
+  - `docs/migration-notes.md`
+- Compatibility-specific test suite:
+  - `tests/layers-adapter-compat.bats`
+
 ## [0.3.0] - 2026-02-20
 
 ### Added
@@ -118,7 +141,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added safety confirmations and option handling for `update-globals`.
 
-[Unreleased]: https://github.com/biendo27/os-setup/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/biendo27/os-setup/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/biendo27/os-setup/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/biendo27/os-setup/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/biendo27/os-setup/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/biendo27/os-setup/tree/v0.1.0

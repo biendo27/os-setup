@@ -21,11 +21,6 @@ layers_host_manifest_path() {
   printf '%s\n' "$OSSETUP_ROOT/manifests/layers/hosts/$host_id.yaml"
 }
 
-legacy_target_manifest_path() {
-  local target="$1"
-  printf '%s\n' "$OSSETUP_ROOT/manifests/targets/$target.yaml"
-}
-
 normalize_host_id_auto() {
   local raw="$1"
   local normalized
@@ -56,14 +51,6 @@ resolve_host_id() {
   fi
 
   printf '%s\n' "$host_id"
-}
-
-layers_enabled_for_target() {
-  local target="$1"
-  local core target_layer
-  core="$(layers_core_manifest_path)"
-  target_layer="$(layers_target_manifest_path "$target")"
-  [[ -f "$core" && -f "$target_layer" ]]
 }
 
 merge_json_values() {
@@ -125,30 +112,5 @@ resolve_layered_target_manifest_json() {
 resolve_target_manifest_json() {
   local target="$1"
   local host_id="${2:-}"
-
-  if layers_enabled_for_target "$target"; then
-    resolve_layered_target_manifest_json "$target" "$host_id"
-    return 0
-  fi
-
-  if [[ "${OSSETUP_REQUIRE_LAYERED:-0}" == "1" ]]; then
-    local core target_layer
-    core="$(layers_core_manifest_path)"
-    target_layer="$(layers_target_manifest_path "$target")"
-    die "$E_PRECHECK" "layered manifests required for target=$target (missing: $core and/or $target_layer)"
-  fi
-
-  local legacy
-  legacy="$(legacy_target_manifest_path "$target")"
-  require_manifest "$legacy"
-  cat "$legacy"
-}
-
-effective_target_manifest_path() {
-  local target="$1"
-  if layers_enabled_for_target "$target"; then
-    printf '%s\n' "$(layers_target_manifest_path "$target")"
-  else
-    printf '%s\n' "$(legacy_target_manifest_path "$target")"
-  fi
+  resolve_layered_target_manifest_json "$target" "$host_id"
 }

@@ -16,21 +16,20 @@ Standardize release creation and changelog handling.
    - move release content from `Unreleased` to new version section.
    - include release date.
    - update comparison links.
-4. Deprecation and migration docs updated for any contract changes:
-   - `docs/deprecations.md`
-   - `docs/migration-notes.md`
+4. Release-impact docs updated for any contract changes:
    - `docs/cleanup/cleanup-inventory.md`
+   - architecture docs (`docs/architecture/*`)
+   - `README.md`
 5. Release changes are merged into `main` via PR (no direct push).
 6. Required branch protection checks are green on merge commit lineage.
 7. Release integrity tooling prerequisites are available:
    - `gpg`
    - `sha256sum` (Linux) or `shasum` (macOS fallback)
 
-Compatibility window policy for layered migration:
+Runtime contract policy:
 
-1. `v0.3.0` introduces layered manifests + adapter.
-2. `v0.4.0` still keeps adapter.
-3. Adapter removal is allowed earliest in `v0.5.0` after migration gates are green.
+1. `v1.0.0` is layered-only.
+2. Runtime must not read from `manifests/targets/*.yaml`.
 
 ## Release Steps
 
@@ -51,16 +50,19 @@ Compatibility window policy for layered migration:
    - outputs:
      - `dist/release/SHA256SUMS`
      - `dist/release/SHA256SUMS.asc`
-8. Verify local integrity before upload:
+8. Export release public key:
+   - `gpg --armor --export <key-id> > dist/release/RELEASE-PUBLIC-KEY.asc`
+9. Verify local integrity before upload:
    - `./bin/release-verify.sh --assets-dir dist/release`
-9. Create GitHub release and upload artifacts + checksum assets:
+10. Create GitHub release and upload artifacts + checksum assets:
    - `gh release create vX.Y.Z dist/release/* --title "vX.Y.Z" --notes "<summary>"`
-10. Verify release:
+11. Verify release:
    - `gh release view vX.Y.Z`
    - confirm URL, tag, non-draft status, and presence of:
      - release artifacts
      - `SHA256SUMS`
      - `SHA256SUMS.asc`
+     - `RELEASE-PUBLIC-KEY.asc`
 
 ## Post-Release
 

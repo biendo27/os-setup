@@ -1,4 +1,4 @@
-# OSSetup v2
+# OSSetup
 
 Declarative bootstrap for your full developer experience on Linux Debian/Ubuntu and macOS.
 
@@ -41,8 +41,6 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Data contracts: [`docs/architecture/DATA-CONTRACTS.md`](docs/architecture/DATA-CONTRACTS.md)
 - Agent handoff context: [`docs/agents/AGENT_CONTEXT.md`](docs/agents/AGENT_CONTEXT.md)
 - Cleanup inventory: [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md)
-- Deprecations log: [`docs/deprecations.md`](docs/deprecations.md)
-- Migration notes: [`docs/migration-notes.md`](docs/migration-notes.md)
 - Runbooks:
   - [`docs/runbooks/DEBUGGING.md`](docs/runbooks/DEBUGGING.md)
   - [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md)
@@ -62,6 +60,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Release integrity policy requires publishing:
   - `SHA256SUMS`
   - `SHA256SUMS.asc` (detached GPG signature of checksum file)
+  - `RELEASE-PUBLIC-KEY.asc` (ASCII-armored public key for signature verification)
 - Git workflow policy (trunk-based, PR-only, merge-commit) is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Commands
@@ -104,7 +103,6 @@ ossetup update-globals
 Manifest files use JSON-compatible YAML syntax and currently live under:
 
 - `manifests/profiles/*.yaml`
-- `manifests/targets/*.yaml` (legacy compatibility path)
 - `manifests/layers/core.yaml`
 - `manifests/layers/targets/*.yaml`
 - `manifests/layers/hosts/*.yaml`
@@ -146,11 +144,6 @@ Cleanup is tracked in [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup
 - `archive-first`: historical or compatibility-sensitive; archive first when still needed for context
 - `keep`: still part of supported architecture
 
-For deprecation timelines and migration mapping, use:
-
-- [`docs/deprecations.md`](docs/deprecations.md)
-- [`docs/migration-notes.md`](docs/migration-notes.md)
-
 ## Removed legacy shims
 
 The following wrappers were removed after deprecation window review:
@@ -164,7 +157,7 @@ The following wrappers were removed after deprecation window review:
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 ## License

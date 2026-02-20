@@ -80,7 +80,7 @@ apply_manifest_json_array() {
 export_linux_state() {
   local mode="$1"
   local target_manifest
-  target_manifest="$(effective_target_manifest_path linux-debian)"
+  target_manifest="$(layers_target_manifest_path linux-debian)"
   require_manifest "$target_manifest"
 
   local out_dir
@@ -143,7 +143,7 @@ export_linux_state() {
 export_macos_state() {
   local mode="$1"
   local target_manifest
-  target_manifest="$(effective_target_manifest_path macos)"
+  target_manifest="$(layers_target_manifest_path macos)"
   require_manifest "$target_manifest"
 
   local out_dir

@@ -55,15 +55,11 @@ run_install() {
 
   local resolved_target
   resolved_target="$(detect_target "$target")"
-  if [[ "${OSSETUP_REQUIRE_LAYERED:-0}" == "1" ]]; then
-    local core_layer target_layer
-    core_layer="$(layers_core_manifest_path)"
-    target_layer="$(layers_target_manifest_path "$resolved_target")"
-    if [[ ! -f "$core_layer" || ! -f "$target_layer" ]]; then
-      die "$E_PRECHECK" "layered manifests required for target=$resolved_target (missing: $core_layer and/or $target_layer)"
-    fi
-  elif ! layers_enabled_for_target "$resolved_target"; then
-    require_manifest "$(target_manifest_path "$resolved_target")"
+  local core_layer target_layer
+  core_layer="$(layers_core_manifest_path)"
+  target_layer="$(layers_target_manifest_path "$resolved_target")"
+  if [[ ! -f "$core_layer" || ! -f "$target_layer" ]]; then
+    die "$E_PRECHECK" "layered manifests required for target=$resolved_target (missing: $core_layer and/or $target_layer)"
   fi
 
   local resolved_host

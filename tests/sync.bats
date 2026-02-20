@@ -11,12 +11,7 @@ setup() {
 
 target_manifest_for_state() {
   local target="$1"
-  local layered="$work/manifests/layers/targets/$target.yaml"
-  if [[ -f "$layered" ]]; then
-    printf '%s\n' "$layered"
-    return 0
-  fi
-  printf '%s\n' "$work/manifests/targets/$target.yaml"
+  printf '%s\n' "$work/manifests/layers/targets/$target.yaml"
 }
 
 @test "sync preview does not mutate repo files" {

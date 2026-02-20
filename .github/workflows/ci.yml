@@ -34,7 +34,7 @@ jobs:
       - name: Validate manifests parse as JSON-compatible YAML
         run: |
           set -euo pipefail
-          for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do
+          for f in manifests/*.yaml manifests/profiles/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do
             jq -e . "$f" >/dev/null
           done
 
