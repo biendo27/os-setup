@@ -12,6 +12,8 @@
 
   run rg -n '^## \[Unreleased\]$' "$changelog"
   [ "$status" -eq 0 ]
+  run rg -n '^## \[0\.3\.0\] - 2026-02-20$' "$changelog"
+  [ "$status" -eq 0 ]
   run rg -n '^## \[0\.2\.0\] - 2026-02-19$' "$changelog"
   [ "$status" -eq 0 ]
   run rg -n '^## \[0\.1\.0\] - 2026-02-19$' "$changelog"
@@ -21,20 +23,22 @@
 @test "current release section contains user-facing grouped entries" {
   local changelog="$BATS_TEST_DIRNAME/../CHANGELOG.md"
 
-  run rg -n '^## \[0\.2\.0\] - 2026-02-19$' "$changelog"
+  run rg -n '^## \[0\.3\.0\] - 2026-02-20$' "$changelog"
   [ "$status" -eq 0 ]
   run rg -n '^### Added$' "$changelog"
   [ "$status" -eq 0 ]
   run rg -n '^### Changed$' "$changelog"
   [ "$status" -eq 0 ]
-  run rg -n '^### Removed$' "$changelog"
+  run rg -n '^### Deprecated$' "$changelog"
   [ "$status" -eq 0 ]
 }
 
 @test "changelog compare links are present and ordered" {
   local changelog="$BATS_TEST_DIRNAME/../CHANGELOG.md"
 
-  run rg -n '^\[Unreleased\]: https://github\.com/biendo27/os-setup/compare/v0\.2\.0\.\.\.HEAD$' "$changelog"
+  run rg -n '^\[Unreleased\]: https://github\.com/biendo27/os-setup/compare/v0\.3\.0\.\.\.HEAD$' "$changelog"
+  [ "$status" -eq 0 ]
+  run rg -n '^\[0\.3\.0\]: https://github\.com/biendo27/os-setup/compare/v0\.2\.0\.\.\.v0\.3\.0$' "$changelog"
   [ "$status" -eq 0 ]
   run rg -n '^\[0\.2\.0\]: https://github\.com/biendo27/os-setup/compare/v0\.1\.0\.\.\.v0\.2\.0$' "$changelog"
   [ "$status" -eq 0 ]
