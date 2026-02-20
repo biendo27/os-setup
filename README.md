@@ -59,6 +59,9 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Versioning uses Semantic Versioning (`vMAJOR.MINOR.PATCH`).
 - Changelog format follows Keep a Changelog in [`CHANGELOG.md`](CHANGELOG.md).
 - Release procedure is documented in [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md).
+- Release integrity policy requires publishing:
+  - `SHA256SUMS`
+  - `SHA256SUMS.asc` (detached GPG signature of checksum file)
 - Git workflow policy (trunk-based, PR-only, merge-commit) is in [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 ## Commands
@@ -79,6 +82,8 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - `doctor`: validates manifests and local prerequisites
   - `--require-global` also verifies global `ossetup` shim at `~/.local/bin/ossetup`
 - `bin/migrate-npm-globals-to-mise.sh`: imports all current `npm -g` packages into the `mise npm:` backend and runs `mise reshim`
+- `bin/release-checksums.sh`: generates deterministic `SHA256SUMS` and optional GPG signature
+- `bin/release-verify.sh`: verifies `SHA256SUMS` + `SHA256SUMS.asc` against release artifacts
 
 ## Update Strategy
 

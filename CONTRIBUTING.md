@@ -54,7 +54,19 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - move `Unreleased` entries into the new version section,
    - set release date,
    - update compare links,
-   - create annotated git tag `vX.Y.Z`.
+   - create annotated git tag `vX.Y.Z`,
+   - publish release assets with:
+     - `SHA256SUMS`
+     - `SHA256SUMS.asc` (detached GPG signature).
+
+## Release Integrity Policy
+
+1. `SHA256` checksums are mandatory for every release artifact.
+2. Checksum file must be signed using GPG detached ASCII signature.
+3. Recommended command sequence:
+   - `./bin/release-checksums.sh --assets-dir <release-dir> --sign-key <key-id>`
+   - `./bin/release-verify.sh --assets-dir <release-dir>`
+4. `SHA512` is optional and only required for explicit compliance contexts.
 
 ## Cleanup Rules
 

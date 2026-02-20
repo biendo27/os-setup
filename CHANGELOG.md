@@ -33,6 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `tests/sync-all-scope.bats`
   - `tests/promote.bats`
   - `tests/verify-strict.bats`
+- Release integrity tooling:
+  - `bin/release-checksums.sh`
+  - `bin/release-verify.sh`
+- Release integrity test suites:
+  - `tests/release-checksums.bats`
+  - `tests/release-verify.bats`
 
 ### Changed
 
@@ -45,7 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Manifest resolution now uses deterministic layered precedence (`core -> target -> host`) with legacy fallback adapter.
 - State export now writes to effective target manifest path (layered target when available).
 - CI manifest validation now covers layered manifests.
+- CI dependencies now include `gnupg` for release integrity test coverage.
 - Architecture/data-contract/invariant/runbook docs updated for layering-first rollout.
+- Release runbook, README, and contributing policy now require publishing `SHA256SUMS` and `SHA256SUMS.asc`.
 
 ### Deprecated
 
