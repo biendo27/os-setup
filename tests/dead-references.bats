@@ -10,11 +10,7 @@
   [ "$status" -eq 1 ]
 }
 
-@test "runtime references manifests/targets only through layers compatibility module" {
+@test "runtime has no references to legacy manifests/targets path" {
   run rg -n 'manifests/targets/' "$BATS_TEST_DIRNAME/../lib" "$BATS_TEST_DIRNAME/../bin"
-  [ "$status" -eq 0 ]
-
-  local filtered
-  filtered="$(printf '%s\n' "$output" | rg -v '/lib/core/layers.sh:' || true)"
-  [ -z "$filtered" ]
+  [ "$status" -eq 1 ]
 }

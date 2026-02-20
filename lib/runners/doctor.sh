@@ -29,8 +29,7 @@ run_doctor() {
 
   info "target: $target"
 
-  local target_legacy_manifest target_layer_manifest core_layer_manifest
-  target_legacy_manifest="$(target_manifest_path "$target")"
+  local target_layer_manifest core_layer_manifest
   target_layer_manifest="$(layers_target_manifest_path "$target")"
   core_layer_manifest="$(layers_core_manifest_path)"
 
@@ -50,10 +49,8 @@ run_doctor() {
   if [[ -f "$core_layer_manifest" && -f "$target_layer_manifest" ]]; then
     info "manifest ok: ${core_layer_manifest#$OSSETUP_ROOT/}"
     info "manifest ok: ${target_layer_manifest#$OSSETUP_ROOT/}"
-  elif [[ -f "$target_legacy_manifest" ]]; then
-    info "manifest ok: ${target_legacy_manifest#$OSSETUP_ROOT/}"
   else
-    die "$E_PRECHECK" "target manifest missing: $target_legacy_manifest and $target_layer_manifest"
+    die "$E_PRECHECK" "layered manifests required for target=$target (missing: $core_layer_manifest and/or $target_layer_manifest)"
   fi
 
   ensure_cmd jq

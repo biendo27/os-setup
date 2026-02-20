@@ -27,7 +27,7 @@ If failures appear, collect output verbatim.
 ## Manifest Issues
 
 ```bash
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do
   jq -e . "$f" >/dev/null || echo "invalid: $f"
 done
 ```

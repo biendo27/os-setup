@@ -1,10 +1,10 @@
 # Cleanup Inventory
 
-Last updated: 2026-02-20 (Phase 4 prep)
+Last updated: 2026-02-20 (Phase 4 cutover)
 
 ## Scope
 
-Controlled cleanup for redundant scripts, docs, manifest fields, and tests while preserving architecture and compatibility contracts.
+Controlled cleanup for redundant scripts, docs, manifest fields, and tests while preserving architecture contracts.
 
 ## Candidates
 
@@ -15,7 +15,9 @@ Controlled cleanup for redundant scripts, docs, manifest fields, and tests while
 | `bin/setup.sh` | `remove-now` | Completed (removed) | Deprecation window completed; canonical command available | Removal verified by `tests/deprecated-removal.bats` and dead-reference scans | Minimal migration-only impact |
 | `bin/sync-from-home.sh` | `remove-now` | Completed (removed) | Deprecation window completed; canonical command available | Removal verified by `tests/deprecated-removal.bats` and dead-reference scans | Minimal migration-only impact |
 | `bin/setup-zsh-functions.sh` | `remove-now` | Completed (removed) | Replaced by `ossetup install` module-driven flow | Removal verified by `tests/deprecated-removal.bats` and dead-reference scans | Minimal migration-only impact |
-| `manifests/targets/*.yaml` | `remove-now` | Planned (`v1.0.0`) | Hard cutover to layered-only desired-state model | Guardrails: `tests/layered-required.bats`, dead-reference checks, CI matrix | Breaking change in `v1.0.0` |
+| `manifests/targets/*.yaml` | `remove-now` | Completed (`v1.0.0`) | Hard cutover to layered-only desired-state model | Guardrails: `tests/layered-required.bats`, dead-reference checks, CI matrix | Breaking change in `v1.0.0` |
+| `docs/deprecations.md` | `remove-now` | Completed (`v1.0.0`) | Transitional deprecation log no longer needed after hard cutover | Canonical docs updated (`README`, architecture, runbooks, agent context), docs consistency tests | No runtime impact |
+| `docs/migration-notes.md` | `remove-now` | Completed (`v1.0.0`) | Migration guidance no longer required for non-public pre-1.0 transition | Canonical docs updated (`README`, architecture, runbooks, agent context), docs consistency tests | No runtime impact |
 | `docs/plans/2026-02-15-ossetup-v2-design.md` | `keep` | Kept | Historical design context still useful for evolution decisions | Referenced by maintainers during architecture reviews | Documentation continuity |
 
 ## Batch Actions Applied
@@ -26,9 +28,10 @@ Controlled cleanup for redundant scripts, docs, manifest fields, and tests while
 4. Added removal contract tests (`tests/deprecated-removal.bats`).
 5. Added dead-reference tests (`tests/dead-references.bats`).
 6. Added docs consistency tests (`tests/docs-consistency.bats`).
-7. Added architecture/agent/deprecation/migration/changelog documentation set.
+7. Added architecture/agent/changelog documentation set.
 8. Introduced layered manifests + adapter lifecycle tracking (`core/target/host`).
+9. Removed legacy target manifests and migration/deprecation docs at `v1.0.0` cutover.
 
 ## Deferred Actions
 
-1. Execute final removal batch in `v1.0.0` and then delete migration/deprecation docs that are no longer needed.
+1. None for Phase 4 cutover scope.

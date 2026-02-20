@@ -13,11 +13,6 @@ profile_manifest_path() {
   printf '%s\n' "$OSSETUP_ROOT/manifests/profiles/$profile.yaml"
 }
 
-target_manifest_path() {
-  local target="$1"
-  legacy_target_manifest_path "$target"
-}
-
 dotfiles_manifest_path() {
   printf '%s\n' "$OSSETUP_ROOT/manifests/dotfiles.yaml"
 }

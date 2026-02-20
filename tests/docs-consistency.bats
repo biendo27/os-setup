@@ -58,6 +58,8 @@
   [ "$status" -eq 0 ]
   run rg -n 'SHA256SUMS.asc' "$readme"
   [ "$status" -eq 0 ]
+  run rg -n 'RELEASE-PUBLIC-KEY.asc' "$readme"
+  [ "$status" -eq 0 ]
 }
 
 @test "contributing guide defines changelog policy" {
@@ -102,9 +104,24 @@
   [ "$status" -eq 0 ]
   run rg -n 'release-verify.sh' "$runbook"
   [ "$status" -eq 0 ]
+  run rg -n 'RELEASE-PUBLIC-KEY.asc' "$runbook"
+  [ "$status" -eq 0 ]
 }
 
 @test "release integrity scripts exist" {
   [ -x "$BATS_TEST_DIRNAME/../bin/release-checksums.sh" ]
   [ -x "$BATS_TEST_DIRNAME/../bin/release-verify.sh" ]
+}
+
+@test "canonical docs do not reference removed deprecation/migration files" {
+  run rg -n 'docs/(deprecations|migration-notes)\\.md' \
+    "$BATS_TEST_DIRNAME/../README.md" \
+    "$BATS_TEST_DIRNAME/../CONTRIBUTING.md" \
+    "$BATS_TEST_DIRNAME/../docs/agents/AGENT_CONTEXT.md" \
+    "$BATS_TEST_DIRNAME/../docs/architecture/ARCHITECTURE.md" \
+    "$BATS_TEST_DIRNAME/../docs/architecture/INVARIANTS.md" \
+    "$BATS_TEST_DIRNAME/../docs/architecture/DATA-CONTRACTS.md" \
+    "$BATS_TEST_DIRNAME/../docs/runbooks/DEBUGGING.md" \
+    "$BATS_TEST_DIRNAME/../docs/runbooks/RELEASE.md"
+  [ "$status" -eq 1 ]
 }

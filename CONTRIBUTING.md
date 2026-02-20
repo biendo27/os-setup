@@ -30,7 +30,7 @@ Run all checks before opening or updating PR:
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 If available locally, also run:
@@ -57,7 +57,8 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - create annotated git tag `vX.Y.Z`,
    - publish release assets with:
      - `SHA256SUMS`
-     - `SHA256SUMS.asc` (detached GPG signature).
+     - `SHA256SUMS.asc` (detached GPG signature)
+     - `RELEASE-PUBLIC-KEY.asc`.
 
 ## Release Integrity Policy
 
@@ -76,13 +77,10 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - `archive-first`
    - `keep`
 3. Do not remove compatibility-sensitive items without:
-   - deprecation notice,
-   - migration notes,
+   - explicit compatibility decision documented in ADR/runbook/changelog,
    - test coverage.
-4. Layered manifest adapter lifecycle:
-   - introduced in `v0.3.0`,
-   - kept through `v0.4.0`,
-   - eligible for removal earliest in `v0.5.0`.
+4. `v1.0.0` contract is layered-only:
+   - `manifests/targets/*.yaml` is no longer part of runtime.
 
 ## Testing Standards
 
@@ -102,6 +100,4 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - `docs/runbooks/RELEASE.md`
    - `docs/adr/ADR-0001-manifest-layering-roadmap.md`
    - `docs/adr/ADR-0002-command-contract-expansion-roadmap.md`
-   - `docs/deprecations.md`
-   - `docs/migration-notes.md`
    - `CHANGELOG.md`
