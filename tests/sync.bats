@@ -9,6 +9,16 @@ setup() {
   cp "$work/dotfiles/.zshrc" "$OSSETUP_HOME_DIR/.zshrc"
 }
 
+target_manifest_for_state() {
+  local target="$1"
+  local layered="$work/manifests/layers/targets/$target.yaml"
+  if [[ -f "$layered" ]]; then
+    printf '%s\n' "$layered"
+    return 0
+  fi
+  printf '%s\n' "$work/manifests/targets/$target.yaml"
+}
+
 @test "sync preview does not mutate repo files" {
   echo "# local change" >> "$OSSETUP_HOME_DIR/.zshrc"
   before="$(sha256sum "$work/dotfiles/.zshrc" | awk '{print $1}')"
@@ -82,20 +92,23 @@ EOS
   [ "$status" -eq 0 ]
   [[ "$output" == *"sync-all APPLY complete"* ]]
 
+  local target_manifest
+  target_manifest="$(target_manifest_for_state linux-debian)"
+
   grep -q "# synced-by-all" "$work/dotfiles/.zshrc"
-  apt_len="$(jq '.packages.apt | length' "$work/manifests/targets/linux-debian.yaml")"
-  flatpak_len="$(jq '.packages.flatpak | length' "$work/manifests/targets/linux-debian.yaml")"
-  snap_len="$(jq '.packages.snap | length' "$work/manifests/targets/linux-debian.yaml")"
-  npm_len="$(jq '.npm_globals | length' "$work/manifests/targets/linux-debian.yaml")"
+  apt_len="$(jq '.packages.apt | length' "$target_manifest")"
+  flatpak_len="$(jq '.packages.flatpak | length' "$target_manifest")"
+  snap_len="$(jq '.packages.snap | length' "$target_manifest")"
+  npm_len="$(jq '.npm_globals | length' "$target_manifest")"
   [ "$apt_len" -eq 3 ]
   [ "$flatpak_len" -eq 2 ]
   [ "$snap_len" -eq 2 ]
   [ "$npm_len" -eq 2 ]
 
-  [ "$(jq -r '.packages.apt[2]' "$work/manifests/targets/linux-debian.yaml")" = "my-new-cli" ]
-  [ "$(jq -r '.packages.flatpak[0]' "$work/manifests/targets/linux-debian.yaml")" = "com.visualstudio.code" ]
-  [ "$(jq -r '.packages.snap[0]' "$work/manifests/targets/linux-debian.yaml")" = "discord" ]
-  [ "$(jq -r '.npm_globals[1]' "$work/manifests/targets/linux-debian.yaml")" = "my-npm-tool" ]
+  [ "$(jq -r '.packages.apt[2]' "$target_manifest")" = "my-new-cli" ]
+  [ "$(jq -r '.packages.flatpak[0]' "$target_manifest")" = "com.visualstudio.code" ]
+  [ "$(jq -r '.packages.snap[0]' "$target_manifest")" = "discord" ]
+  [ "$(jq -r '.npm_globals[1]' "$target_manifest")" = "my-npm-tool" ]
 }
 
 @test "sync apply copies profile directory entries into repo" {

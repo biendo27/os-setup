@@ -18,7 +18,8 @@ setup_npm_prefix() {
 install_npm_globals() {
   local target="$1"
   local dry_run="$2"
-  mapfile -t globals < <(target_npm_globals "$target")
+  local host_id="${3:-${OSSETUP_HOST_ID:-}}"
+  mapfile -t globals < <(target_npm_globals "$target" "$host_id")
 
   if (( ${#globals[@]} == 0 )); then
     info "no npm global packages configured"

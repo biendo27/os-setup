@@ -38,6 +38,7 @@ install_brew_if_missing() {
 install_packages_for_target() {
   local target="$1"
   local dry_run="$2"
+  local host_id="${3:-${OSSETUP_HOST_ID:-}}"
   local -a packages=()
   local -a flatpaks=()
   local -a snaps=()
@@ -45,15 +46,15 @@ install_packages_for_target() {
 
   case "$target" in
     linux-debian)
-      mapfile -t packages < <(target_packages "$target" "apt")
+      mapfile -t packages < <(target_packages "$target" "apt" "$host_id")
       if (( ${#packages[@]} == 0 )); then
         info "no apt packages configured"
         return 0
       fi
       if [[ "$dry_run" == "1" ]]; then
         info "dry-run apt packages: ${packages[*]}"
-        mapfile -t flatpaks < <(target_packages "$target" "flatpak")
-        mapfile -t snaps < <(target_packages "$target" "snap")
+        mapfile -t flatpaks < <(target_packages "$target" "flatpak" "$host_id")
+        mapfile -t snaps < <(target_packages "$target" "snap" "$host_id")
         if (( ${#flatpaks[@]} > 0 )); then
           info "dry-run flatpak apps: ${flatpaks[*]}"
         fi
@@ -67,7 +68,7 @@ install_packages_for_target() {
       $sudo_cmd apt-get update
       $sudo_cmd apt-get install -y "${packages[@]}"
 
-      mapfile -t flatpaks < <(target_packages "$target" "flatpak")
+      mapfile -t flatpaks < <(target_packages "$target" "flatpak" "$host_id")
       if (( ${#flatpaks[@]} > 0 )); then
         if command -v flatpak >/dev/null 2>&1; then
           local app
@@ -79,7 +80,7 @@ install_packages_for_target() {
         fi
       fi
 
-      mapfile -t snaps < <(target_packages "$target" "snap")
+      mapfile -t snaps < <(target_packages "$target" "snap" "$host_id")
       if (( ${#snaps[@]} > 0 )); then
         if command -v snap >/dev/null 2>&1; then
           local app
@@ -92,14 +93,14 @@ install_packages_for_target() {
       fi
       ;;
     macos)
-      mapfile -t packages < <(target_packages "$target" "brew")
+      mapfile -t packages < <(target_packages "$target" "brew" "$host_id")
       if (( ${#packages[@]} == 0 )); then
         info "no brew packages configured"
         return 0
       fi
       if [[ "$dry_run" == "1" ]]; then
         info "dry-run brew packages: ${packages[*]}"
-        mapfile -t casks < <(target_packages "$target" "brew_cask")
+        mapfile -t casks < <(target_packages "$target" "brew_cask" "$host_id")
         if (( ${#casks[@]} > 0 )); then
           info "dry-run brew casks: ${casks[*]}"
         fi
@@ -109,7 +110,7 @@ install_packages_for_target() {
       brew update
       brew install "${packages[@]}"
 
-      mapfile -t casks < <(target_packages "$target" "brew_cask")
+      mapfile -t casks < <(target_packages "$target" "brew_cask" "$host_id")
       if (( ${#casks[@]} > 0 )); then
         brew install --cask "${casks[@]}"
       fi

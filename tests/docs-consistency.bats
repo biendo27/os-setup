@@ -92,3 +92,12 @@
   run rg -n 'merge-commit only' "$contributing"
   [ "$status" -eq 0 ]
 }
+
+@test "layered manifest baseline files exist" {
+  local root="$BATS_TEST_DIRNAME/.."
+
+  [ -f "$root/manifests/layers/core.yaml" ]
+  [ -f "$root/manifests/layers/targets/linux-debian.yaml" ]
+  [ -f "$root/manifests/layers/targets/macos.yaml" ]
+  [ -f "$root/manifests/layers/hosts/.gitkeep" ]
+}

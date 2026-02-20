@@ -1,5 +1,18 @@
 # Phase 3-4 Execution Roadmap
 
+## Status Update (2026-02-20)
+
+1. Phase 3A implemented:
+   - layered manifests (`core/targets/hosts`) and deterministic resolver shipped.
+   - compatibility adapter from legacy targets is active.
+2. Phase 3B implemented:
+   - `install --host`, `sync-all --scope`, `promote`, `verify --strict` shipped with contract tests.
+3. Phase 3C/3D updated:
+   - architecture/runbook/docs refreshed.
+   - CI and tests expanded for new contracts.
+4. Phase 4 remains partially open:
+   - adapter removal and legacy dead-reference cleanup are deferred to earliest `v0.5.0`.
+
 ## Scope
 
 Execute remaining product phases after `v0.2.0` closeout:

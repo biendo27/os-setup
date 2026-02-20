@@ -19,6 +19,7 @@ source "$OSSETUP_ROOT/lib/providers/global-shim.sh"
 run_install() {
   local profile="default"
   local target="auto"
+  local host="auto"
   local dry_run=0
 
   while (( $# > 0 )); do
@@ -29,6 +30,10 @@ run_install() {
         ;;
       --target)
         target="${2:-}"
+        shift 2
+        ;;
+      --host)
+        host="${2:-}"
         shift 2
         ;;
       --dry-run)
@@ -50,15 +55,21 @@ run_install() {
 
   local resolved_target
   resolved_target="$(detect_target "$target")"
-  require_manifest "$(target_manifest_path "$resolved_target")"
+  if ! layers_enabled_for_target "$resolved_target"; then
+    require_manifest "$(target_manifest_path "$resolved_target")"
+  fi
+
+  local resolved_host
+  resolved_host="$(resolve_host_id "$host")"
+  export OSSETUP_HOST_ID="$resolved_host"
 
   acquire_lock
-  info "install profile=$profile target=$resolved_target dry-run=$dry_run"
+  info "install profile=$profile target=$resolved_target host=$resolved_host dry-run=$dry_run"
 
   run_hook_dir "$OSSETUP_ROOT/hooks/pre-install.d"
 
   if profile_module_enabled "$profile" "packages"; then
-    install_packages_for_target "$resolved_target" "$dry_run"
+    install_packages_for_target "$resolved_target" "$dry_run" "$resolved_host"
   fi
 
   if profile_module_enabled "$profile" "dotfiles"; then
@@ -79,7 +90,7 @@ run_install() {
   fi
 
   if profile_module_enabled "$profile" "npm_globals"; then
-    install_npm_globals "$resolved_target" "$dry_run"
+    install_npm_globals "$resolved_target" "$dry_run" "$resolved_host"
   fi
 
   if profile_module_enabled "$profile" "secrets"; then

@@ -27,7 +27,7 @@ If failures appear, collect output verbatim.
 ## Manifest Issues
 
 ```bash
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do
   jq -e . "$f" >/dev/null || echo "invalid: $f"
 done
 ```
@@ -53,10 +53,21 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
 
 1. Run:
    - `./bin/ossetup verify --report`
+   - `./bin/ossetup verify --strict --report`
 2. Open generated report path and identify failed sections:
    - command availability
    - dotfile mismatch
    - function mismatch
+   - strict contract drift (manifest vs state snapshot)
+
+## Promote and Layering Issues
+
+1. Confirm resolved target and host:
+   - `./bin/ossetup install --dry-run --target auto --host auto`
+2. Validate state snapshot files for target:
+   - `ls -la manifests/state/<target>/`
+3. Preview promote without mutating:
+   - `./bin/ossetup promote --target <target> --scope all --from-state latest --preview`
 
 ## Escalation Data to Capture
 

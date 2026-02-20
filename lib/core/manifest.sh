@@ -6,6 +6,7 @@ fi
 OSSETUP_MANIFEST_SH=1
 
 source "$OSSETUP_ROOT/lib/core/common.sh"
+source "$OSSETUP_ROOT/lib/core/layers.sh"
 
 profile_manifest_path() {
   local profile="$1"
@@ -14,7 +15,7 @@ profile_manifest_path() {
 
 target_manifest_path() {
   local target="$1"
-  printf '%s\n' "$OSSETUP_ROOT/manifests/targets/$target.yaml"
+  legacy_target_manifest_path "$target"
 }
 
 dotfiles_manifest_path() {
@@ -42,18 +43,18 @@ profile_module_enabled() {
 target_packages() {
   local target="$1"
   local provider="$2"
-  local file
-  file="$(target_manifest_path "$target")"
-  require_manifest "$file"
-  jq -r --arg provider "$provider" '.packages[$provider][]? // empty' "$file"
+  local host_id="${3:-${OSSETUP_HOST_ID:-}}"
+  local manifest_json
+  manifest_json="$(resolve_target_manifest_json "$target" "$host_id")"
+  jq -r --arg provider "$provider" '.packages[$provider][]? // empty' <<<"$manifest_json"
 }
 
 target_npm_globals() {
   local target="$1"
-  local file
-  file="$(target_manifest_path "$target")"
-  require_manifest "$file"
-  jq -r '.npm_globals[]? // empty' "$file"
+  local host_id="${2:-${OSSETUP_HOST_ID:-}}"
+  local manifest_json
+  manifest_json="$(resolve_target_manifest_json "$target" "$host_id")"
+  jq -r '.npm_globals[]? // empty' <<<"$manifest_json"
 }
 
 dotfiles_entries() {

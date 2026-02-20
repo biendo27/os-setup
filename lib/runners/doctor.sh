@@ -29,10 +29,14 @@ run_doctor() {
 
   info "target: $target"
 
+  local target_legacy_manifest target_layer_manifest core_layer_manifest
+  target_legacy_manifest="$(target_manifest_path "$target")"
+  target_layer_manifest="$(layers_target_manifest_path "$target")"
+  core_layer_manifest="$(layers_core_manifest_path)"
+
   local f
   for f in \
     "$(profile_manifest_path default)" \
-    "$(target_manifest_path "$target")" \
     "$(dotfiles_manifest_path)" \
     "$(secrets_manifest_path)"
   do
@@ -42,6 +46,15 @@ run_doctor() {
       die "$E_PRECHECK" "manifest missing: $f"
     fi
   done
+
+  if [[ -f "$core_layer_manifest" && -f "$target_layer_manifest" ]]; then
+    info "manifest ok: ${core_layer_manifest#$OSSETUP_ROOT/}"
+    info "manifest ok: ${target_layer_manifest#$OSSETUP_ROOT/}"
+  elif [[ -f "$target_legacy_manifest" ]]; then
+    info "manifest ok: ${target_legacy_manifest#$OSSETUP_ROOT/}"
+  else
+    die "$E_PRECHECK" "target manifest missing: $target_legacy_manifest and $target_layer_manifest"
+  fi
 
   ensure_cmd jq
   ensure_cmd find

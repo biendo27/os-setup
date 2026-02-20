@@ -30,7 +30,7 @@ Run all checks before opening or updating PR:
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 If available locally, also run:
@@ -67,6 +67,10 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - deprecation notice,
    - migration notes,
    - test coverage.
+4. Layered manifest adapter lifecycle:
+   - introduced in `v0.3.0`,
+   - kept through `v0.4.0`,
+   - eligible for removal earliest in `v0.5.0`.
 
 ## Testing Standards
 

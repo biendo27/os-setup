@@ -23,6 +23,10 @@
   [ "$status" -eq 0 ]
   run rg -n '^      - main$' "$ci"
   [ "$status" -eq 0 ]
+  run rg -n 'manifests/layers/core.yaml' "$ci"
+  [ "$status" -eq 0 ]
+  run rg -n -F 'manifests/layers/targets/*.yaml' "$ci"
+  [ "$status" -eq 0 ]
   run rg -n 'feat/\\*\\*' "$ci"
   [ "$status" -eq 1 ]
 }

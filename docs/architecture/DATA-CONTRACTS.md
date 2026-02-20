@@ -2,9 +2,7 @@
 
 ## Purpose
 
-Define contract boundaries for repository-managed desired state, machine snapshots, and future layered manifests.
-
-## Current Contracts
+Define contract boundaries for desired state, observed state snapshots, and compatibility paths during layered-manifest migration.
 
 ## Profiles (`manifests/profiles/*.yaml`)
 
@@ -17,15 +15,48 @@ Define contract boundaries for repository-managed desired state, machine snapsho
   - Missing module keys default to disabled.
   - Unknown modules are ignored by runners unless wired in code.
 
-## Targets (`manifests/targets/*.yaml`)
+## Layered Desired State (Primary)
 
-- Scope: target-specific package/tool declarations.
-- Current contract:
-  - `packages` object with provider arrays (e.g. `apt`, `flatpak`, `snap`, `brew`, `brew_cask`)
+## Core Layer (`manifests/layers/core.yaml`)
+
+- Scope: shared baseline across all targets/hosts.
+- Contract:
+  - `packages` object (optional provider arrays)
   - `npm_globals` array
-- Behavior:
-  - Provider arrays are consumed by target-specific provider modules.
-  - Unknown providers are ignored unless explicitly consumed.
+
+## Target Layers (`manifests/layers/targets/<target>.yaml`)
+
+- Scope: OS/target-specific desired state.
+- Contract:
+  - `packages` object with provider arrays:
+    - Linux: `apt`, `flatpak`, `snap`
+    - macOS: `brew`, `brew_cask`
+  - `npm_globals` array
+
+## Host Layers (`manifests/layers/hosts/<host-id>.yaml`)
+
+- Scope: machine-specific overlay.
+- Contract:
+  - Same shape as target layer for overridden or additive values.
+- Host id contract:
+  - normalized lowercase
+  - regex: `[a-z0-9][a-z0-9._-]{0,62}`
+
+## Layer Merge Rules
+
+1. Precedence is deterministic: `core -> target -> host`.
+2. Object values merge recursively.
+3. Array values merge by ordered union (left to right, de-duplicated).
+4. Scalar/non-object values from later layer override earlier layer.
+
+## Legacy Targets (`manifests/targets/*.yaml`) (Compatibility)
+
+- Scope: fallback desired-state source when layered files are absent.
+- Contract shape matches target layer contract:
+  - `packages` object
+  - `npm_globals` array
+- Adapter behavior:
+  - runtime uses legacy targets only when layered path for target is unavailable.
 
 ## Dotfiles (`manifests/dotfiles.yaml`)
 
@@ -49,34 +80,38 @@ Define contract boundaries for repository-managed desired state, machine snapsho
     - `item` (vault item key)
     - `required` (boolean, default true)
 - Invariant:
-  - No plaintext secret values are stored in-repo.
+  - no plaintext secret values are stored in-repo.
 
 ## State Snapshots (`manifests/state/<target>/*`)
 
-- Scope: observed machine state for comparison/audit.
+- Scope: observed machine state for comparison/audit/promote.
 - Contract:
   - text lists (one item per line) for package/app/global tool snapshots.
+  - Linux snapshot files:
+    - `apt-manual.txt`
+    - `flatpak-apps.txt`
+    - `snap-list.txt`
+    - `npm-globals.txt`
+  - macOS snapshot files:
+    - `brew-formula.txt`
+    - `brew-casks.txt`
+    - `npm-globals.txt`
 - Behavior:
-  - Produced by `sync-all` state export provider.
-  - Not the canonical source of desired state by default.
+  - produced by `sync-all` state export provider.
+  - consumed by `promote` and `verify --strict`.
 
-## Planned Layered Model (Roadmap)
+## Compatibility Lifecycle
 
-- `manifests/layers/core.yaml`:
-  - shared desired state across targets.
-- `manifests/layers/targets/<target>.yaml`:
-  - target-specific desired state overlays.
-- `manifests/layers/hosts/<host-id>.yaml`:
-  - host-specific overlay for machine-local needs.
-- Merge precedence:
-  - `core -> target -> host`.
+1. Layered model introduced in `v0.3.0`.
+2. Legacy adapter is kept through `v0.4.0`.
+3. Legacy adapter removal is eligible earliest in `v0.5.0` after migration safety checks are green.
 
-## Compatibility Rules
+## Change Management
 
-1. Existing manifests remain supported during migration to layered model.
-2. Migration must include adapter logic and contract tests.
-3. Any contract change requires updates to:
-   - `docs/architecture/ARCHITECTURE.md`
-   - `docs/architecture/INVARIANTS.md`
-   - `README.md`
-   - `CHANGELOG.md`
+Any contract change requires synchronized updates in:
+
+- `README.md`
+- `docs/architecture/ARCHITECTURE.md`
+- `docs/architecture/INVARIANTS.md`
+- `CHANGELOG.md`
+- related runbooks (`docs/runbooks/*`)

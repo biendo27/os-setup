@@ -15,6 +15,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.github/workflows/pr-title.yml`
 - Workflow governance tests:
   - `tests/workflow-governance.bats`
+- Layered manifest foundation:
+  - `manifests/layers/core.yaml`
+  - `manifests/layers/targets/linux-debian.yaml`
+  - `manifests/layers/targets/macos.yaml`
+  - `manifests/layers/hosts/.gitkeep`
+  - `lib/core/layers.sh`
+- Command contract expansion:
+  - `install --host <id|auto>`
+  - `sync-all --scope config|state|all`
+  - `promote --target ... --scope ... --from-state ... --preview|--apply`
+  - `verify --strict`
+- New contract test suites:
+  - `tests/layers-resolver.bats`
+  - `tests/layers-adapter-compat.bats`
+  - `tests/install-host.bats`
+  - `tests/sync-all-scope.bats`
+  - `tests/promote.bats`
+  - `tests/verify-strict.bats`
 
 ### Changed
 
@@ -24,6 +42,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/runbooks/RELEASE.md` now enforces release from `main` after PR checks pass.
 - `README.md` now links to workflow policy location.
 - `tests/docs-consistency.bats` now validates workflow governance artifacts.
+- Manifest resolution now uses deterministic layered precedence (`core -> target -> host`) with legacy fallback adapter.
+- State export now writes to effective target manifest path (layered target when available).
+- CI manifest validation now covers layered manifests.
+- Architecture/data-contract/invariant/runbook docs updated for layering-first rollout.
+
+### Deprecated
+
+- `manifests/targets/*.yaml` is now a compatibility path and planned for removal earliest in `v0.5.0`.
 
 ## [0.2.0] - 2026-02-19
 

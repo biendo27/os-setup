@@ -1,6 +1,6 @@
 # ADR-0002: Command Contract Expansion Roadmap
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-02-19
 
 ## Context

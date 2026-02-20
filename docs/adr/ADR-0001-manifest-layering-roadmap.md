@@ -1,6 +1,6 @@
 # ADR-0001: Manifest Layering Roadmap
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-02-19
 
 ## Context

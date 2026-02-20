@@ -18,7 +18,12 @@ This file is the fast handoff context for agents implementing, debugging, and ex
 - CLI: `bin/ossetup`
 - Runner modules: `lib/runners/*.sh`
 - Provider modules: `lib/providers/*.sh`
-- Manifest contracts: `manifests/*.yaml`, `manifests/profiles/*.yaml`, `manifests/targets/*.yaml`
+- Manifest contracts:
+  - `manifests/profiles/*.yaml`
+  - `manifests/targets/*.yaml` (legacy compatibility)
+  - `manifests/layers/core.yaml`
+  - `manifests/layers/targets/*.yaml`
+  - `manifests/layers/hosts/*.yaml`
 
 ## Allowed Mutation Surfaces
 
@@ -40,7 +45,7 @@ This file is the fast handoff context for agents implementing, debugging, and ex
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml; do jq -e . "$f" >/dev/null; done
+for f in manifests/*.yaml manifests/profiles/*.yaml manifests/targets/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 ## Do Not Break

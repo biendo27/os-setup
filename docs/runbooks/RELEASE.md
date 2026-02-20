@@ -16,8 +16,18 @@ Standardize release creation and changelog handling.
    - move release content from `Unreleased` to new version section.
    - include release date.
    - update comparison links.
-4. Release changes are merged into `main` via PR (no direct push).
-5. Required branch protection checks are green on merge commit lineage.
+4. Deprecation and migration docs updated for any contract changes:
+   - `docs/deprecations.md`
+   - `docs/migration-notes.md`
+   - `docs/cleanup/cleanup-inventory.md`
+5. Release changes are merged into `main` via PR (no direct push).
+6. Required branch protection checks are green on merge commit lineage.
+
+Compatibility window policy for layered migration:
+
+1. `v0.3.0` introduces layered manifests + adapter.
+2. `v0.4.0` still keeps adapter.
+3. Adapter removal is allowed earliest in `v0.5.0` after migration gates are green.
 
 ## Release Steps
 

@@ -80,7 +80,7 @@ apply_manifest_json_array() {
 export_linux_state() {
   local mode="$1"
   local target_manifest
-  target_manifest="$(target_manifest_path linux-debian)"
+  target_manifest="$(effective_target_manifest_path linux-debian)"
   require_manifest "$target_manifest"
 
   local out_dir
@@ -137,13 +137,13 @@ export_linux_state() {
     apply_manifest_json_array "$target_manifest" '.npm_globals = $arr' "$(lines_to_json_array "$npm_lines")"
   fi
 
-  info "state APPLY manifest: manifests/targets/linux-debian.yaml"
+  info "state APPLY manifest: ${target_manifest#$OSSETUP_ROOT/}"
 }
 
 export_macos_state() {
   local mode="$1"
   local target_manifest
-  target_manifest="$(target_manifest_path macos)"
+  target_manifest="$(effective_target_manifest_path macos)"
   require_manifest "$target_manifest"
 
   local out_dir
@@ -189,7 +189,7 @@ export_macos_state() {
     apply_manifest_json_array "$target_manifest" '.npm_globals = $arr' "$(lines_to_json_array "$npm_lines")"
   fi
 
-  info "state APPLY manifest: manifests/targets/macos.yaml"
+  info "state APPLY manifest: ${target_manifest#$OSSETUP_ROOT/}"
 }
 
 export_state_for_target() {

@@ -1,0 +1,18 @@
+{
+  "packages": {
+    "brew": [
+      "zsh",
+      "git",
+      "curl",
+      "wget",
+      "unzip",
+      "starship",
+      "zoxide",
+      "fzf",
+      "python@3",
+      "jq"
+    ],
+    "brew_cask": []
+  },
+  "npm_globals": []
+}
