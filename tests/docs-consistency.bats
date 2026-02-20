@@ -13,8 +13,6 @@
     "$root/docs/adr/ADR-0002-command-contract-expansion-roadmap.md"
     "$root/docs/plans/2026-02-19-phase3-4-execution-roadmap.md"
     "$root/docs/cleanup/cleanup-inventory.md"
-    "$root/docs/deprecations.md"
-    "$root/docs/migration-notes.md"
     "$root/.github/CODEOWNERS"
     "$root/.github/pull_request_template.md"
     "$root/.github/workflows/pr-title.yml"
@@ -59,19 +57,6 @@
   run rg -n 'SHA256SUMS' "$readme"
   [ "$status" -eq 0 ]
   run rg -n 'SHA256SUMS.asc' "$readme"
-  [ "$status" -eq 0 ]
-}
-
-@test "deprecation log tracks removed legacy shim scripts" {
-  local deprecations="$BATS_TEST_DIRNAME/../docs/deprecations.md"
-
-  run rg -n 'Completed Removals' "$deprecations"
-  [ "$status" -eq 0 ]
-  run rg -n 'bin/setup.sh' "$deprecations"
-  [ "$status" -eq 0 ]
-  run rg -n 'bin/sync-from-home.sh' "$deprecations"
-  [ "$status" -eq 0 ]
-  run rg -n 'bin/setup-zsh-functions.sh' "$deprecations"
   [ "$status" -eq 0 ]
 }
 

@@ -1,6 +1,6 @@
 # Cleanup Inventory
 
-Last updated: 2026-02-20
+Last updated: 2026-02-20 (Phase 4 prep)
 
 ## Scope
 
@@ -15,7 +15,7 @@ Controlled cleanup for redundant scripts, docs, manifest fields, and tests while
 | `bin/setup.sh` | `remove-now` | Completed (removed) | Deprecation window completed; canonical command available | Removal verified by `tests/deprecated-removal.bats` and dead-reference scans | Minimal migration-only impact |
 | `bin/sync-from-home.sh` | `remove-now` | Completed (removed) | Deprecation window completed; canonical command available | Removal verified by `tests/deprecated-removal.bats` and dead-reference scans | Minimal migration-only impact |
 | `bin/setup-zsh-functions.sh` | `remove-now` | Completed (removed) | Replaced by `ossetup install` module-driven flow | Removal verified by `tests/deprecated-removal.bats` and dead-reference scans | Minimal migration-only impact |
-| `manifests/targets/*.yaml` | `archive-first` | Deferred (`adapter-active`) | Legacy desired-state source kept for compatibility window while layered manifests become canonical | Adapter lifecycle tracked in `docs/deprecations.md`; covered by `tests/layers-adapter-compat.bats` | Removal blocked until earliest `v0.5.0` migration gate |
+| `manifests/targets/*.yaml` | `remove-now` | Planned (`v1.0.0`) | Hard cutover to layered-only desired-state model | Guardrails: `tests/layered-required.bats`, dead-reference checks, CI matrix | Breaking change in `v1.0.0` |
 | `docs/plans/2026-02-15-ossetup-v2-design.md` | `keep` | Kept | Historical design context still useful for evolution decisions | Referenced by maintainers during architecture reviews | Documentation continuity |
 
 ## Batch Actions Applied
@@ -31,4 +31,4 @@ Controlled cleanup for redundant scripts, docs, manifest fields, and tests while
 
 ## Deferred Actions
 
-1. Re-run removal safety checks if any new compatibility wrappers are introduced.
+1. Execute final removal batch in `v1.0.0` and then delete migration/deprecation docs that are no longer needed.

@@ -131,6 +131,13 @@ resolve_target_manifest_json() {
     return 0
   fi
 
+  if [[ "${OSSETUP_REQUIRE_LAYERED:-0}" == "1" ]]; then
+    local core target_layer
+    core="$(layers_core_manifest_path)"
+    target_layer="$(layers_target_manifest_path "$target")"
+    die "$E_PRECHECK" "layered manifests required for target=$target (missing: $core and/or $target_layer)"
+  fi
+
   local legacy
   legacy="$(legacy_target_manifest_path "$target")"
   require_manifest "$legacy"

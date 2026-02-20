@@ -1,12 +1,12 @@
 # Deprecations Log
 
-Last updated: 2026-02-20
+Last updated: 2026-02-20 (Phase 4 prep)
 
 ## Active Deprecations
 
 | Item | Status | Replacement | Started | Planned Removal |
 | --- | --- | --- | --- | --- |
-| `manifests/targets/*.yaml` (legacy desired-state source) | Deprecated compatibility path | `manifests/layers/{core,targets,hosts}/*.yaml` | 2026-02-20 (`v0.3.0`) | Earliest `v0.5.0` |
+| `manifests/targets/*.yaml` (legacy desired-state source) | Final removal queued | `manifests/layers/{core,targets,hosts}/*.yaml` | 2026-02-20 (`v0.3.0`) | `v1.0.0` hard cutover |
 
 ## Completed Removals
 
@@ -25,3 +25,4 @@ Last updated: 2026-02-20
    - cleanup inventory tracking in `docs/cleanup/cleanup-inventory.md`,
    - contract test coverage.
 3. Compatibility adapters are removed only after safety proofs are green (`bats`, dead-reference, docs consistency, CI matrix).
+4. For `v1.0.0`, legacy target manifests and adapter path are removed as a breaking change.
