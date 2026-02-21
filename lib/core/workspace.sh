@@ -28,7 +28,7 @@ resolve_abs_dir() {
     input="$(pwd)/$input"
   fi
   if [[ -d "$input" ]]; then
-    (cd "$input" && pwd)
+    (cd -P "$input" && pwd -P)
     return 0
   fi
 
@@ -37,7 +37,7 @@ resolve_abs_dir() {
   local name
   name="$(basename "$input")"
   if [[ -d "$base" ]]; then
-    printf '%s/%s\n' "$(cd "$base" && pwd)" "$name"
+    printf '%s/%s\n' "$(cd -P "$base" && pwd -P)" "$name"
     return 0
   fi
 
@@ -106,7 +106,7 @@ init_workspace_context() {
   [[ -n "$user_id" ]] || die "$E_PRECHECK" "workspace config missing user_id: $ws_file"
 
   local personal_root core_root
-  personal_root="$(cd "$(dirname "$ws_file")" && pwd)"
+  personal_root="$(cd -P "$(dirname "$ws_file")" && pwd -P)"
 
   if [[ "$core_repo_path" = /* ]]; then
     core_root="$core_repo_path"

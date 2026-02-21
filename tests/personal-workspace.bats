@@ -150,3 +150,23 @@ JSON
   [ "$status" -eq 0 ]
   [[ "$output" == *"workspace mode: personal-overrides"* ]]
 }
+
+@test "sync apply guard works when core path uses symlink alias" {
+  local core_link="$BATS_TEST_TMPDIR/core-link"
+  ln -s "$core" "$core_link"
+
+  cat > "$personal/.ossetup-workspace.json" <<'JSON'
+{
+  "schema_version": 1,
+  "core_repo_url": "https://github.com/biendo27/os-setup.git",
+  "core_repo_ref": "main",
+  "core_repo_path": "../core-link",
+  "user_id": "emanon",
+  "mode": "personal-overrides"
+}
+JSON
+
+  run bash -lc "cd '$core' && OSSETUP_WORKSPACE_FILE='$personal/.ossetup-workspace.json' '$core/bin/ossetup' sync --apply"
+  [ "$status" -eq 65 ]
+  [[ "$output" == *"personal repo"* ]]
+}
