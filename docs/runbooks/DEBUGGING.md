@@ -15,8 +15,16 @@ Provide a deterministic sequence for diagnosing install/sync/verify issues.
 
 ## Baseline Health Checks
 
+From personal repo root:
+
 ```bash
-./bin/ossetup doctor
+ossetup doctor
+ossetup verify --report
+```
+
+From core repo (engine validation):
+
+```bash
 bats tests
 ```
 
@@ -45,15 +53,15 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
 ## Sync Mismatch
 
 1. Run preview first:
-   - `./bin/ossetup sync --preview`
+   - `ossetup sync --preview`
 2. Compare mapped files from `manifests/dotfiles.yaml`.
 3. Validate optional vs required entries.
 
 ## Verify Failures
 
 1. Run:
-   - `./bin/ossetup verify --report`
-   - `./bin/ossetup verify --strict --report`
+   - `ossetup verify --report`
+   - `ossetup verify --strict --report`
 2. Open generated report path and identify failed sections:
    - command availability
    - dotfile mismatch
@@ -63,11 +71,11 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
 ## Promote and Layering Issues
 
 1. Confirm resolved target and host:
-   - `./bin/ossetup install --dry-run --target auto --host auto`
+   - `ossetup install --dry-run --target auto --host auto`
 2. Validate state snapshot files for target:
    - `ls -la manifests/state/<target>/`
 3. Preview promote without mutating:
-   - `./bin/ossetup promote --target <target> --scope all --from-state latest --preview`
+   - `ossetup promote --target <target> --scope all --from-state latest --preview`
 
 ## Escalation Data to Capture
 

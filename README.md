@@ -13,11 +13,25 @@ Uses personal-only runtime:
 curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-bootstrap.sh | bash
 ```
 
-You can pin repo/ref with env vars:
+Default behavior of the core bootstrap script:
+
+- clone/update core repo
+- scaffold a local personal workspace at `~/.local/share/ossetup-personal` (if missing)
+- run `install` from the personal workspace context
+
+You can pin core repo/ref with env vars:
 
 ```bash
-OSSETUP_REPO_URL="https://github.com/biendo27/os-setup.git" \
-OSSETUP_REPO_REF="main" \
+OSSETUP_CORE_REPO_URL="https://github.com/biendo27/os-setup.git" \
+OSSETUP_CORE_REPO_REF="main" \
+curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-bootstrap.sh | bash
+```
+
+If you already have a personal repo bootstrap script, delegate to it:
+
+```bash
+OSSETUP_PERSONAL_REPO_URL="https://github.com/<your-user>/<your-personal-repo>.git" \
+OSSETUP_PERSONAL_REPO_REF="main" \
 curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-bootstrap.sh | bash
 ```
 
@@ -51,19 +65,26 @@ Legacy mode value `personal-overrides` is accepted as an alias for `personal-onl
 
 ## Local usage
 
+Run runtime commands from your personal repo directory.
+
 ```bash
-./bin/ossetup help
-./bin/ossetup doctor
-./bin/ossetup install --profile default --target auto --host auto
-./bin/ossetup sync --preview
-./bin/ossetup sync --apply
-./bin/ossetup sync-all --apply --target auto --scope all
-./bin/ossetup promote --target auto --scope all --from-state latest --preview
-./bin/ossetup promote --target auto --scope all --from-state latest --apply
-./bin/ossetup update-globals
-./bin/ossetup verify --report
-./bin/ossetup verify --strict --report
-./bin/ossetup doctor --require-global
+ossetup help
+ossetup doctor
+ossetup install --profile default --target auto --host auto
+ossetup sync --preview
+ossetup sync --apply
+ossetup sync-all --apply --target auto --scope all
+ossetup promote --target auto --scope all --from-state latest --preview
+ossetup promote --target auto --scope all --from-state latest --apply
+ossetup update-globals
+ossetup verify --report
+ossetup verify --strict --report
+ossetup doctor --require-global
+```
+
+Developer-only utilities in core repo:
+
+```bash
 ./bin/migrate-npm-globals-to-mise.sh
 ```
 
