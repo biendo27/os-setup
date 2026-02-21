@@ -18,10 +18,27 @@ SH
   git -C "$repo_dir" commit -m "init personal bootstrap fixture" >/dev/null
 }
 
+create_core_repo_fixture() {
+  local source_repo="$1"
+  local fixture_repo="$2"
+
+  mkdir -p "$fixture_repo"
+  cp -R "$source_repo/manifests" "$fixture_repo/"
+  cp -R "$source_repo/hooks" "$fixture_repo/"
+  cp -R "$source_repo/templates" "$fixture_repo/"
+
+  git -C "$fixture_repo" init -b main >/dev/null
+  git -C "$fixture_repo" config user.email "test@example.invalid"
+  git -C "$fixture_repo" config user.name "test"
+  git -C "$fixture_repo" add .
+  git -C "$fixture_repo" commit -m "init core bootstrap fixture" >/dev/null
+}
+
 @test "core raw-bootstrap initializes personal workspace in core-first mode" {
-  local core_src="$BATS_TEST_DIRNAME/.."
+  local core_src="$BATS_TEST_TMPDIR/core-src"
   local core_checkout="$BATS_TEST_TMPDIR/core-checkout"
   local personal_dir="$BATS_TEST_TMPDIR/personal-workspace"
+  create_core_repo_fixture "$BATS_TEST_DIRNAME/.." "$core_src"
 
   run env \
     OSSETUP_CORE_REPO_URL="file://$core_src" \
@@ -63,9 +80,10 @@ SH
 }
 
 @test "core raw-bootstrap supports legacy env aliases" {
-  local core_src="$BATS_TEST_DIRNAME/.."
+  local core_src="$BATS_TEST_TMPDIR/core-src-legacy"
   local core_checkout="$BATS_TEST_TMPDIR/core-checkout-legacy"
   local personal_dir="$BATS_TEST_TMPDIR/personal-workspace-legacy"
+  create_core_repo_fixture "$BATS_TEST_DIRNAME/.." "$core_src"
 
   run env \
     OSSETUP_REPO_URL="file://$core_src" \
