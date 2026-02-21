@@ -1,2 +1,0 @@
-vokoscreenNG	com.github.vkohaupt.vokoscreenNG	4.8.3	stable	system
-Gear Lever	it.mijorus.gearlever	4.3.1	stable	system

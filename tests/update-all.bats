@@ -1,8 +1,11 @@
 #!/usr/bin/env bats
 
+source "$BATS_TEST_DIRNAME/helpers/workspace-fixture.bash"
+
 setup() {
   work="$BATS_TEST_TMPDIR/work"
   cp -R "$BATS_TEST_DIRNAME/.." "$work"
+  seed_personal_runtime_templates "$work" "$work"
   chmod +x "$work/functions/update-all" 2>/dev/null || true
 
   fakebin="$BATS_TEST_TMPDIR/fakebin"

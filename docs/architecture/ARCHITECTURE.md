@@ -46,7 +46,7 @@ Data ownership:
 ## Supported Boundaries
 
 - Runtime must not depend on core repo `manifests/*`, `dotfiles/*`, `functions/*`, or `hooks/*`.
-- Core repo may keep templates/examples for bootstrap guidance, but runtime never resolves data from template paths.
+- Core repo may keep templates/examples for bootstrap guidance (for example `templates/personal-data/*`), but runtime never resolves data from template paths.
 - `popos-migration/` remains a utility set, not a core `ossetup` command path.
 
 ## Evolution Rules

@@ -1,5 +1,7 @@
 #!/usr/bin/env bats
 
+source "$BATS_TEST_DIRNAME/helpers/workspace-fixture.bash"
+
 setup() {
   core="$BATS_TEST_TMPDIR/core"
   personal="$BATS_TEST_TMPDIR/personal"
@@ -11,11 +13,7 @@ setup() {
   mkdir -p "$OSSETUP_HOME_DIR/.config" "$OSSETUP_HOME_DIR/.ssh" "$OSSETUP_HOME_DIR/.config/zsh/functions"
 
   # Seed minimal personal runtime data from repository snapshot.
-  mkdir -p "$personal/manifests" "$personal/dotfiles" "$personal/functions" "$personal/hooks"
-  cp -R "$core/manifests" "$personal/"
-  cp -R "$core/dotfiles" "$personal/"
-  cp -R "$core/functions" "$personal/"
-  cp -R "$core/hooks" "$personal/"
+  seed_personal_data_from_repo "$core" "$personal"
 
   cp "$personal/dotfiles/.zshrc" "$OSSETUP_HOME_DIR/.zshrc"
 

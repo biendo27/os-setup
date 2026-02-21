@@ -23,6 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `sync --apply` remains personal-only and still rejects apply when run from core repo path.
 - `promote --apply` is enabled in personal mode and writes personal target layers.
 - Architecture, invariants, data contracts, runbook, README, and agent context were updated for hard cutover.
+- Core fixtures for personal runtime files are now stored under `templates/personal-data/*` for tests/bootstrap guidance.
+
+### Removed
+
+- Root personal runtime data directories from core repo:
+  - `dotfiles/`
+  - `functions/`
+  - `archive/`
 
 ## [1.0.0] - 2026-02-20
 

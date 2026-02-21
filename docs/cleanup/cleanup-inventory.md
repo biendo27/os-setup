@@ -18,6 +18,7 @@ Controlled cleanup for redundant scripts, docs, manifest fields, and tests while
 | `manifests/targets/*.yaml` | `remove-now` | Completed (`v1.0.0`) | Hard cutover to layered-only desired-state model | Guardrails: `tests/layered-required.bats`, dead-reference checks, CI matrix | Breaking change in `v1.0.0` |
 | `docs/deprecations.md` | `remove-now` | Completed (`v1.0.0`) | Transitional deprecation log no longer needed after hard cutover | Canonical docs updated (`README`, architecture, runbooks, agent context), docs consistency tests | No runtime impact |
 | `docs/migration-notes.md` | `remove-now` | Completed (`v1.0.0`) | Migration guidance no longer required for non-public pre-1.0 transition | Canonical docs updated (`README`, architecture, runbooks, agent context), docs consistency tests | No runtime impact |
+| Root `dotfiles/`, `functions/`, `archive/` | `remove-now` | Completed (`Unreleased`) | Core repo is engine-only; personal runtime files moved out of root | Dead-reference tests enforce absence in core root; fixture templates kept under `templates/personal-data/*` | No runtime behavior change (personal-only paths already enforced) |
 | `docs/plans/2026-02-15-ossetup-v2-design.md` | `keep` | Kept | Historical design context still useful for evolution decisions | Referenced by maintainers during architecture reviews | Documentation continuity |
 
 ## Batch Actions Applied
@@ -31,6 +32,7 @@ Controlled cleanup for redundant scripts, docs, manifest fields, and tests while
 7. Added architecture/agent/changelog documentation set.
 8. Introduced layered manifests + adapter lifecycle tracking (`core/target/host`).
 9. Removed legacy target manifests and migration/deprecation docs at `v1.0.0` cutover.
+10. Moved root personal runtime fixtures into `templates/personal-data/*` and removed root `dotfiles/`, `functions/`, `archive/`.
 
 ## Deferred Actions
 

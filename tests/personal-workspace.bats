@@ -61,7 +61,7 @@ EOS
 
 @test "sync apply writes personal repo and does not mutate core repo" {
   printf '\n# personal-sync\n' >> "$OSSETUP_HOME_DIR/.zshrc"
-  before_core="$(sha256sum "$core/dotfiles/.zshrc" | awk '{print $1}')"
+  before_core="$(sha256sum "$core/templates/personal-data/dotfiles/.zshrc" | awk '{print $1}')"
 
   run bash -lc "cd '$personal' && '$core/bin/ossetup' sync --apply"
   [ "$status" -eq 0 ]
@@ -69,7 +69,7 @@ EOS
   [ -f "$personal/dotfiles/.zshrc" ]
   grep -q '# personal-sync' "$personal/dotfiles/.zshrc"
 
-  after_core="$(sha256sum "$core/dotfiles/.zshrc" | awk '{print $1}')"
+  after_core="$(sha256sum "$core/templates/personal-data/dotfiles/.zshrc" | awk '{print $1}')"
   [ "$before_core" = "$after_core" ]
 }
 
@@ -95,7 +95,7 @@ EOS
   [ "$before_core_manifest" = "$after_core_manifest" ]
 }
 
-@test "install prefers personal dotfile override over core" {
+@test "install uses personal dotfile override" {
   cat > "$personal/manifests/profiles/personal-test.yaml" <<'JSON'
 {
   "name": "personal-test",
@@ -112,7 +112,7 @@ EOS
 }
 JSON
 
-  printf 'core-version\n' > "$core/dotfiles/.zshrc"
+  printf 'core-version\n' > "$core/templates/personal-data/dotfiles/.zshrc"
   mkdir -p "$personal/dotfiles"
   printf 'personal-version\n' > "$personal/dotfiles/.zshrc"
 
