@@ -1,9 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+seed_personal_runtime_templates() {
+  local source_repo="$1"
+  local target_repo="$2"
+  local template_root="$source_repo/templates/personal-data"
+
+  [[ -d "$target_repo" ]] || mkdir -p "$target_repo"
+
+  if [[ ! -d "$target_repo/dotfiles" ]]; then
+    cp -R "$template_root/dotfiles" "$target_repo/"
+  fi
+  if [[ ! -d "$target_repo/functions" ]]; then
+    cp -R "$template_root/functions" "$target_repo/"
+  fi
+}
+
 setup_workspace_in_repo() {
   local repo_root="$1"
   local mode="${2:-personal-only}"
+
+  seed_personal_runtime_templates "$repo_root" "$repo_root"
 
   cat > "$repo_root/.ossetup-workspace.json" <<JSON
 {
@@ -24,9 +41,8 @@ seed_personal_data_from_repo() {
   local personal_repo="$2"
 
   mkdir -p "$personal_repo"
+  seed_personal_runtime_templates "$source_repo" "$personal_repo"
   cp -R "$source_repo/manifests" "$personal_repo/"
-  cp -R "$source_repo/dotfiles" "$personal_repo/"
-  cp -R "$source_repo/functions" "$personal_repo/"
   cp -R "$source_repo/hooks" "$personal_repo/"
 }
 

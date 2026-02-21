@@ -123,7 +123,7 @@ Legacy mode value `personal-overrides` is accepted as an alias for `personal-onl
 
 ## Update Strategy
 
-`functions/update-all` now follows a mise-first workflow for developer tools:
+`functions/update-all` in your personal repo now follows a mise-first workflow for developer tools:
 
 1. System updates: `apt` (if available) and `snap`
 2. Toolchain updates: `mise upgrade --yes`
@@ -131,7 +131,7 @@ Legacy mode value `personal-overrides` is accepted as an alias for `personal-onl
 
 It intentionally does **not** run `npm update -g` anymore.
 
-If you use zsh functions from this repo, `functions/update-globals` is also provided and delegates to:
+If you use zsh functions from your personal repo, `functions/update-globals` delegates to:
 
 ```bash
 ossetup update-globals
@@ -165,7 +165,7 @@ ossetup help
 
 ## Canonical dotfiles
 
-Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
+Managed via personal `manifests/dotfiles.yaml` and backed up before overwrite:
 
 - `dotfiles/.zshrc` <-> `~/.zshrc`
 - `dotfiles/.zimrc` <-> `~/.zimrc`
@@ -177,6 +177,8 @@ Managed via `manifests/dotfiles.yaml` and backed up before overwrite:
 - Cursor profiles (`~/.config/Cursor/User/profiles`)
 - Antigravity profiles (`~/.config/Antigravity/User/profiles`)
 - `functions/*` <-> `~/.config/zsh/functions/*`
+
+Core repo keeps sample personal data under `templates/personal-data/` for tests and bootstrap guidance only.
 
 ## Controlled Cleanup
 
