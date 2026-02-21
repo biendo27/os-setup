@@ -8,27 +8,22 @@ OSSETUP_LAYERS_SH=1
 source "$OSSETUP_ROOT/lib/core/common.sh"
 
 layers_core_manifest_path() {
-  printf '%s\n' "$(ossetup_core_root)/manifests/layers/core.yaml"
+  printf '%s\n' "$(ossetup_personal_root)/manifests/layers/core.yaml"
 }
 
 layers_target_manifest_path() {
   local target="$1"
-  printf '%s\n' "$(ossetup_core_root)/manifests/layers/targets/$target.yaml"
+  printf '%s\n' "$(ossetup_personal_root)/manifests/layers/targets/$target.yaml"
 }
 
 layers_host_manifest_path() {
   local host_id="$1"
-  printf '%s\n' "$(ossetup_core_root)/manifests/layers/hosts/$host_id.yaml"
+  printf '%s\n' "$(ossetup_personal_root)/manifests/layers/hosts/$host_id.yaml"
 }
 
 layers_user_manifest_path() {
   local user_id="$1"
   printf '%s\n' "$(ossetup_personal_root)/manifests/layers/users/$user_id.yaml"
-}
-
-layers_personal_host_manifest_path() {
-  local host_id="$1"
-  printf '%s\n' "$(ossetup_personal_root)/manifests/layers/hosts/$host_id.yaml"
 }
 
 normalize_host_id_auto() {
@@ -108,30 +103,20 @@ resolve_layered_target_manifest_json() {
   merged="$(cat "$core")"
   merged="$(merge_json_values "$merged" "$(cat "$target_layer")")"
 
-  if [[ -n "$host_id" ]]; then
-    local core_host_layer
-    core_host_layer="$(layers_host_manifest_path "$host_id")"
-    if [[ -f "$core_host_layer" ]]; then
-      merged="$(merge_json_values "$merged" "$(cat "$core_host_layer")")"
+  local user_layer user_id
+  user_id="$(workspace_user_id)"
+  if [[ -n "$user_id" ]]; then
+    user_layer="$(layers_user_manifest_path "$user_id")"
+    if [[ -f "$user_layer" ]]; then
+      merged="$(merge_json_values "$merged" "$(cat "$user_layer")")"
     fi
   fi
 
-  if is_personal_workspace_mode; then
-    local user_layer user_id
-    user_id="$(workspace_user_id)"
-    if [[ -n "$user_id" ]]; then
-      user_layer="$(layers_user_manifest_path "$user_id")"
-      if [[ -f "$user_layer" ]]; then
-        merged="$(merge_json_values "$merged" "$(cat "$user_layer")")"
-      fi
-    fi
-
-    if [[ -n "$host_id" ]]; then
-      local personal_host_layer
-      personal_host_layer="$(layers_personal_host_manifest_path "$host_id")"
-      if [[ -f "$personal_host_layer" ]]; then
-        merged="$(merge_json_values "$merged" "$(cat "$personal_host_layer")")"
-      fi
+  if [[ -n "$host_id" ]]; then
+    local host_layer
+    host_layer="$(layers_host_manifest_path "$host_id")"
+    if [[ -f "$host_layer" ]]; then
+      merged="$(merge_json_values "$merged" "$(cat "$host_layer")")"
     fi
   fi
 

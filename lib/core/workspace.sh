@@ -66,36 +66,44 @@ find_workspace_config() {
 
 workspace_config_path() {
   if [[ -n "${OSSETUP_WORKSPACE_FILE:-}" ]]; then
-    resolve_abs_path "$OSSETUP_WORKSPACE_FILE"
+    local explicit
+    explicit="$(resolve_abs_path "$OSSETUP_WORKSPACE_FILE")"
+    [[ -f "$explicit" ]] || die "$E_PRECHECK" "workspace config missing: $explicit"
+    printf '%s\n' "$explicit"
     return 0
   fi
 
-  if find_workspace_config >/dev/null 2>&1; then
-    find_workspace_config
+  local discovered
+  discovered="$(find_workspace_config || true)"
+  if [[ -n "$discovered" ]]; then
+    printf '%s\n' "$discovered"
     return 0
   fi
 
-  return 1
+  die "$E_PRECHECK" "workspace config is required; create .ossetup-workspace.json in your personal repo"
 }
 
 init_workspace_context() {
-  set_workspace_roots "single-repo" "$OSSETUP_ROOT" "$OSSETUP_ROOT"
-
   local ws_file
-  if ! ws_file="$(workspace_config_path)"; then
-    return 0
-  fi
+  ws_file="$(workspace_config_path)"
 
   [[ -f "$ws_file" ]] || die "$E_PRECHECK" "workspace config missing: $ws_file"
   command -v jq >/dev/null 2>&1 || die "$E_PRECHECK" "workspace config requires jq: $ws_file"
 
   local mode
-  mode="$(jq -r '.mode // "single-repo"' "$ws_file")"
-  if [[ "$mode" != "personal-overrides" ]]; then
-    set_workspace_roots "single-repo" "$OSSETUP_ROOT" "$OSSETUP_ROOT"
-    export OSSETUP_WORKSPACE_FILE_RESOLVED="$ws_file"
-    return 0
-  fi
+  mode="$(jq -r '.mode // empty' "$ws_file")"
+  [[ -n "$mode" ]] || die "$E_PRECHECK" "workspace config missing mode: $ws_file (expected: personal-only)"
+
+  case "$mode" in
+    personal-only)
+      ;;
+    personal-overrides)
+      mode="personal-only"
+      ;;
+    *)
+      die "$E_PRECHECK" "workspace config has unsupported mode: $mode (expected: personal-only)"
+      ;;
+  esac
 
   local core_repo_path
   core_repo_path="$(jq -r '.core_repo_path // empty' "$ws_file")"
@@ -117,6 +125,6 @@ init_workspace_context() {
   core_root="$(resolve_abs_dir "$core_root")" || die "$E_PRECHECK" "cannot resolve core repo path: $core_repo_path"
   [[ -d "$core_root" ]] || die "$E_PRECHECK" "core repo path not found: $core_root"
 
-  set_workspace_roots "personal-overrides" "$core_root" "$personal_root" "$user_id"
+  set_workspace_roots "$mode" "$core_root" "$personal_root" "$user_id"
   export OSSETUP_WORKSPACE_FILE_RESOLVED="$ws_file"
 }

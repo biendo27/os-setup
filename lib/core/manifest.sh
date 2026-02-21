@@ -10,15 +10,15 @@ source "$OSSETUP_ROOT/lib/core/layers.sh"
 
 profile_manifest_path() {
   local profile="$1"
-  printf '%s\n' "$(ossetup_core_root)/manifests/profiles/$profile.yaml"
+  printf '%s\n' "$(ossetup_personal_root)/manifests/profiles/$profile.yaml"
 }
 
 dotfiles_manifest_path() {
-  printf '%s\n' "$(ossetup_core_root)/manifests/dotfiles.yaml"
+  printf '%s\n' "$(ossetup_personal_root)/manifests/dotfiles.yaml"
 }
 
 secrets_manifest_path() {
-  printf '%s\n' "$(ossetup_core_root)/manifests/secrets.yaml"
+  printf '%s\n' "$(ossetup_personal_root)/manifests/secrets.yaml"
 }
 
 require_manifest() {
@@ -97,27 +97,5 @@ repo_write_path() {
 
 resolve_repo_source_path() {
   local repo_rel="$1"
-  local entry_type="${2:-file}"
-  local core_path personal_path
-  core_path="$(repo_path_in_core "$repo_rel")"
-  personal_path="$(repo_path_in_personal "$repo_rel")"
-
-  if is_personal_workspace_mode; then
-    case "$entry_type" in
-      dir)
-        if [[ -d "$personal_path" ]]; then
-          printf '%s\n' "$personal_path"
-          return 0
-        fi
-        ;;
-      *)
-        if [[ -f "$personal_path" ]]; then
-          printf '%s\n' "$personal_path"
-          return 0
-        fi
-        ;;
-    esac
-  fi
-
-  printf '%s\n' "$core_path"
+  printf '%s/%s\n' "$(ossetup_personal_root)" "$repo_rel"
 }

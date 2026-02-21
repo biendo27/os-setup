@@ -34,7 +34,7 @@ state_manifest_path_for_target() {
   if is_personal_workspace_mode; then
     local user_id
     user_id="$(workspace_user_id)"
-    [[ -n "$user_id" ]] || die "$E_PRECHECK" "workspace user_id is required for personal-overrides mode"
+    [[ -n "$user_id" ]] || die "$E_PRECHECK" "workspace user_id is required for personal-only mode"
 
     local user_manifest
     user_manifest="$(layers_user_manifest_path "$user_id")"

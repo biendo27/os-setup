@@ -1,9 +1,12 @@
 #!/usr/bin/env bats
 
+source "$BATS_TEST_DIRNAME/helpers/workspace-fixture.bash"
+
 setup() {
   work="$BATS_TEST_TMPDIR/work"
   cp -R "$BATS_TEST_DIRNAME/.." "$work"
   chmod +x "$work/bin/ossetup" 2>/dev/null || true
+  setup_workspace_in_repo "$work"
   export OSSETUP_HOME_DIR="$BATS_TEST_TMPDIR/home"
   mkdir -p "$OSSETUP_HOME_DIR/.config"
   cp "$work/dotfiles/.zshrc" "$OSSETUP_HOME_DIR/.zshrc"
@@ -12,6 +15,10 @@ setup() {
 target_manifest_for_state() {
   local target="$1"
   printf '%s\n' "$work/manifests/layers/targets/$target.yaml"
+}
+
+user_manifest_for_state() {
+  printf '%s\n' "$work/manifests/layers/users/test-user.yaml"
 }
 
 @test "sync preview does not mutate repo files" {
@@ -88,7 +95,7 @@ EOS
   [[ "$output" == *"sync-all APPLY complete"* ]]
 
   local target_manifest
-  target_manifest="$(target_manifest_for_state linux-debian)"
+  target_manifest="$(user_manifest_for_state)"
 
   grep -q "# synced-by-all" "$work/dotfiles/.zshrc"
   apt_len="$(jq '.packages.apt | length' "$target_manifest")"

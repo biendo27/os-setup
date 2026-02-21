@@ -69,7 +69,7 @@ run_install() {
   acquire_lock
   info "install profile=$profile target=$resolved_target host=$resolved_host dry-run=$dry_run"
 
-  run_hook_dir "$OSSETUP_ROOT/hooks/pre-install.d"
+  run_hook_dir "$(ossetup_personal_root)/hooks/pre-install.d"
 
   if profile_module_enabled "$profile" "packages"; then
     install_packages_for_target "$resolved_target" "$dry_run" "$resolved_host"
@@ -104,7 +104,7 @@ run_install() {
     install_global_shim "$dry_run"
   fi
 
-  run_hook_dir "$OSSETUP_ROOT/hooks/post-install.d"
+  run_hook_dir "$(ossetup_personal_root)/hooks/post-install.d"
 
   info "install complete"
 }

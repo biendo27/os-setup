@@ -101,17 +101,13 @@ verify_functions() {
   local report="$1"
   local failures_ref="$2"
 
-  local repo_rel home_dir core_dir personal_dir merged_dir
+  local repo_rel home_dir personal_dir merged_dir
   repo_rel="$(function_sync_repo_dir)"
-  core_dir="$(repo_path_in_core "$repo_rel")"
   personal_dir="$(repo_path_in_personal "$repo_rel")"
   home_dir="$(expand_home_path "$(function_sync_home_dir)")"
 
   merged_dir="$(mktemp -d)"
-  if [[ -d "$core_dir" ]]; then
-    cp -f "$core_dir"/* "$merged_dir" 2>/dev/null || true
-  fi
-  if is_personal_workspace_mode && [[ -d "$personal_dir" ]]; then
+  if [[ -d "$personal_dir" ]]; then
     cp -f "$personal_dir"/* "$merged_dir" 2>/dev/null || true
   fi
 

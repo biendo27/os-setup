@@ -2,7 +2,7 @@
 
 ## Goal
 
-Run OSSetup with a shared core repo and a personal overrides repo, while keeping one-command bootstrap for new machines.
+Run OSSetup with a core engine repo and a personal data repo, while keeping one-command bootstrap for new machines.
 
 ## Layout
 
@@ -21,9 +21,27 @@ Run OSSetup with a shared core repo and a personal overrides repo, while keeping
   "core_repo_ref": "main",
   "core_repo_path": "../OSSetup",
   "user_id": "emanon",
-  "mode": "personal-overrides"
+  "mode": "personal-only"
 }
 ```
+
+Notes:
+
+- Runtime commands require this file.
+- `mode: personal-overrides` is still accepted as alias.
+
+## Required Personal Data Tree
+
+Personal repo must contain runtime data:
+
+- `manifests/profiles/*.yaml`
+- `manifests/layers/{core,targets,users,hosts}/*.yaml`
+- `manifests/dotfiles.yaml`
+- `manifests/secrets.yaml`
+- `dotfiles/*`
+- `functions/*`
+- `hooks/pre-install.d/*` (optional)
+- `hooks/post-install.d/*` (optional)
 
 ## Daily Workflow
 
@@ -34,6 +52,7 @@ ossetup sync --preview
 ossetup sync --apply
 ossetup sync-all --apply --target auto --scope state
 ossetup install --profile default --target auto --host auto
+ossetup promote --target auto --scope all --from-state latest --apply
 ossetup verify --strict --report
 ```
 
@@ -41,7 +60,7 @@ Behavior in personal mode:
 
 - `sync --apply` writes only personal files.
 - `sync-all --scope state --apply` writes personal state and personal user layer.
-- `promote --apply` is blocked (preview-only).
+- `promote --apply` writes personal target layer.
 
 ## New Machine Bootstrap (One-Liner)
 
@@ -65,9 +84,9 @@ else
 fi
 
 workspace="$PERSONAL_DIR/.ossetup-workspace.json"
-core_url="$(jq -r '.core_repo_url // empty' "$workspace")"
-core_ref="$(jq -r '.core_repo_ref // "main"' "$workspace")"
-core_rel="$(jq -r '.core_repo_path' "$workspace")"
+core_url="${OSSETUP_CORE_REPO_URL:-$(jq -r '.core_repo_url // empty' "$workspace")}"
+core_ref="${OSSETUP_CORE_REPO_REF:-$(jq -r '.core_repo_ref // "main"' "$workspace")}"
+core_rel="$(jq -r '.core_repo_path // empty' "$workspace")"
 core_dir="$PERSONAL_DIR/$core_rel"
 
 mkdir -p "$(dirname "$core_dir")"
@@ -81,4 +100,3 @@ fi
 cd "$PERSONAL_DIR"
 exec "$core_dir/bin/ossetup" install --profile default --target auto --host auto
 ```
-

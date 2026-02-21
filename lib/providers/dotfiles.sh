@@ -100,9 +100,6 @@ sync_dotfiles() {
 
         local baseline_file
         baseline_file="$repo_file"
-        if is_personal_workspace_mode && [[ ! -f "$repo_file" ]]; then
-          baseline_file="$(repo_path_in_core "$repo_rel")"
-        fi
 
         if [[ -f "$baseline_file" ]] && files_equal "$home_file" "$baseline_file"; then
           info "UNCHANGED $home_rel"
@@ -131,9 +128,6 @@ sync_dotfiles() {
 
         local baseline_dir
         baseline_dir="$repo_file"
-        if is_personal_workspace_mode && [[ ! -d "$repo_file" ]]; then
-          baseline_dir="$(repo_path_in_core "$repo_rel")"
-        fi
 
         if [[ -d "$baseline_dir" ]] && diff -qr "$home_file" "$baseline_dir" >/dev/null 2>&1; then
           info "UNCHANGED $home_rel"
