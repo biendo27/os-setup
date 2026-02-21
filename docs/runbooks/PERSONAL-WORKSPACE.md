@@ -100,3 +100,8 @@ fi
 cd "$PERSONAL_DIR"
 exec "$core_dir/bin/ossetup" install --profile default --target auto --host auto
 ```
+
+Note:
+
+- Core repo `bin/raw-bootstrap.sh` can bootstrap from core directly: clone core, seed local personal workspace, then run install.
+- If `OSSETUP_PERSONAL_REPO_URL` is set, core bootstrap delegates to personal repo `bin/raw-bootstrap.sh`.

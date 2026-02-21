@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `tests/personal-only-cutover.bats`
 - Shared test workspace helper:
   - `tests/helpers/workspace-fixture.bash`
+- Core bootstrap wrapper regression tests:
+  - `tests/raw-bootstrap-wrapper.bats`
 
 ### Changed
 
@@ -24,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `promote --apply` is enabled in personal mode and writes personal target layers.
 - Architecture, invariants, data contracts, runbook, README, and agent context were updated for hard cutover.
 - Core fixtures for personal runtime files are now stored under `templates/personal-data/*` for tests/bootstrap guidance.
+- Core `bin/raw-bootstrap.sh` now supports core-first bootstrap: clone core, seed local personal workspace, then install from personal context.
+- Core bootstrap also supports delegation to personal repo bootstrap when `OSSETUP_PERSONAL_REPO_URL` is provided.
+- README and runbooks now align one-liner/bootstrap behavior with core-first entrypoint.
 
 ### Removed
 
