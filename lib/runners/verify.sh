@@ -8,6 +8,18 @@ OSSETUP_RUNNER_VERIFY_SH=1
 source "$OSSETUP_ROOT/lib/core/common.sh"
 source "$OSSETUP_ROOT/lib/core/manifest.sh"
 
+verify_log_path() {
+  local path="$1"
+  local root
+  for root in "$(ossetup_write_root)" "$(ossetup_core_root)" "$OSSETUP_ROOT"; do
+    if path_is_within "$path" "$root"; then
+      printf '%s\n' "${path#$root/}"
+      return 0
+    fi
+  done
+  printf '%s\n' "$path"
+}
+
 verify_commands() {
   local report="$1"
   local failures_ref="$2"
@@ -37,7 +49,7 @@ verify_dotfiles() {
     optional="$(jq -r '.optional // false' <<<"$entry")"
 
     local repo_file home_file
-    repo_file="$OSSETUP_ROOT/$repo_rel"
+    repo_file="$(resolve_repo_source_path "$repo_rel" "$entry_type")"
     home_file="$(expand_home_path "$home_rel")"
 
     case "$entry_type" in
@@ -89,9 +101,19 @@ verify_functions() {
   local report="$1"
   local failures_ref="$2"
 
-  local repo_dir home_dir
-  repo_dir="$OSSETUP_ROOT/$(function_sync_repo_dir)"
+  local repo_rel home_dir core_dir personal_dir merged_dir
+  repo_rel="$(function_sync_repo_dir)"
+  core_dir="$(repo_path_in_core "$repo_rel")"
+  personal_dir="$(repo_path_in_personal "$repo_rel")"
   home_dir="$(expand_home_path "$(function_sync_home_dir)")"
+
+  merged_dir="$(mktemp -d)"
+  if [[ -d "$core_dir" ]]; then
+    cp -f "$core_dir"/* "$merged_dir" 2>/dev/null || true
+  fi
+  if is_personal_workspace_mode && [[ -d "$personal_dir" ]]; then
+    cp -f "$personal_dir"/* "$merged_dir" 2>/dev/null || true
+  fi
 
   local file
   while IFS= read -r file; do
@@ -111,7 +133,9 @@ verify_functions() {
       printf 'FAIL function mismatch %s\n' "$base" >>"$report"
       eval "$failures_ref=$(( $failures_ref + 1 ))"
     fi
-  done < <(find "$repo_dir" -maxdepth 1 -type f | sort)
+  done < <(find "$merged_dir" -maxdepth 1 -type f | sort)
+
+  rm -rf "$merged_dir"
 }
 
 sorted_manifest_lines() {
@@ -133,7 +157,7 @@ verify_strict_array_drift() {
   local state_file="$5"
 
   if [[ ! -f "$state_file" ]]; then
-    printf 'FAIL strict missing-state %s (%s)\n' "$label" "${state_file#$OSSETUP_ROOT/}" >>"$report"
+    printf 'FAIL strict missing-state %s (%s)\n' "$label" "$(verify_log_path "$state_file")" >>"$report"
     eval "$failures_ref=$(( $failures_ref + 1 ))"
     return 0
   fi
@@ -162,10 +186,11 @@ verify_strict_contracts() {
   target="$(detect_target auto)"
   local manifest_json
   manifest_json="$(resolve_target_manifest_json "$target" "${OSSETUP_HOST_ID:-}")"
-  local state_dir="$OSSETUP_ROOT/manifests/state/$target"
+  local state_dir
+  state_dir="$(ossetup_write_root)/manifests/state/$target"
 
   if [[ ! -d "$state_dir" ]]; then
-    printf 'FAIL strict missing-state-dir %s\n' "${state_dir#$OSSETUP_ROOT/}" >>"$report"
+    printf 'FAIL strict missing-state-dir %s\n' "$(verify_log_path "$state_dir")" >>"$report"
     eval "$failures_ref=$(( $failures_ref + 1 ))"
     return 0
   fi

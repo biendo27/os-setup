@@ -10,7 +10,48 @@ source "$OSSETUP_ROOT/lib/core/manifest.sh"
 
 state_dir_for_target() {
   local target="$1"
-  printf '%s\n' "$OSSETUP_ROOT/manifests/state/$target"
+  printf '%s\n' "$(ossetup_write_root)/manifests/state/$target"
+}
+
+path_for_log() {
+  local path="$1"
+  local root
+
+  for root in "$(ossetup_write_root)" "$(ossetup_core_root)" "$OSSETUP_ROOT"; do
+    if path_is_within "$path" "$root"; then
+      printf '%s\n' "${path#$root/}"
+      return 0
+    fi
+  done
+
+  printf '%s\n' "$path"
+}
+
+state_manifest_path_for_target() {
+  local target="$1"
+  local mode="$2"
+
+  if is_personal_workspace_mode; then
+    local user_id
+    user_id="$(workspace_user_id)"
+    [[ -n "$user_id" ]] || die "$E_PRECHECK" "workspace user_id is required for personal-overrides mode"
+
+    local user_manifest
+    user_manifest="$(layers_user_manifest_path "$user_id")"
+    if [[ "$mode" == "apply" && ! -f "$user_manifest" ]]; then
+      ensure_parent_dir "$user_manifest"
+      cat >"$user_manifest" <<'JSON'
+{
+  "packages": {},
+  "npm_globals": []
+}
+JSON
+    fi
+    printf '%s\n' "$user_manifest"
+    return 0
+  fi
+
+  printf '%s\n' "$(layers_target_manifest_path "$target")"
 }
 
 lines_to_json_array() {
@@ -57,13 +98,13 @@ write_state_file() {
   local data="$3"
 
   if [[ "$mode" == "preview" ]]; then
-    info "state PREVIEW file: ${path#$OSSETUP_ROOT/}"
+    info "state PREVIEW file: $(path_for_log "$path")"
     return 0
   fi
 
   ensure_parent_dir "$path"
   printf '%s\n' "$data" >"$path"
-  info "state APPLY file: ${path#$OSSETUP_ROOT/}"
+  info "state APPLY file: $(path_for_log "$path")"
 }
 
 apply_manifest_json_array() {
@@ -79,9 +120,10 @@ apply_manifest_json_array() {
 
 export_linux_state() {
   local mode="$1"
-  local target_manifest
-  target_manifest="$(layers_target_manifest_path linux-debian)"
-  require_manifest "$target_manifest"
+  local core_target_manifest target_manifest
+  core_target_manifest="$(layers_target_manifest_path linux-debian)"
+  require_manifest "$core_target_manifest"
+  target_manifest="$(state_manifest_path_for_target linux-debian "$mode")"
 
   local out_dir
   out_dir="$(state_dir_for_target linux-debian)"
@@ -137,14 +179,15 @@ export_linux_state() {
     apply_manifest_json_array "$target_manifest" '.npm_globals = $arr' "$(lines_to_json_array "$npm_lines")"
   fi
 
-  info "state APPLY manifest: ${target_manifest#$OSSETUP_ROOT/}"
+  info "state APPLY manifest: $(path_for_log "$target_manifest")"
 }
 
 export_macos_state() {
   local mode="$1"
-  local target_manifest
-  target_manifest="$(layers_target_manifest_path macos)"
-  require_manifest "$target_manifest"
+  local core_target_manifest target_manifest
+  core_target_manifest="$(layers_target_manifest_path macos)"
+  require_manifest "$core_target_manifest"
+  target_manifest="$(state_manifest_path_for_target macos "$mode")"
 
   local out_dir
   out_dir="$(state_dir_for_target macos)"
@@ -189,7 +232,7 @@ export_macos_state() {
     apply_manifest_json_array "$target_manifest" '.npm_globals = $arr' "$(lines_to_json_array "$npm_lines")"
   fi
 
-  info "state APPLY manifest: ${target_manifest#$OSSETUP_ROOT/}"
+  info "state APPLY manifest: $(path_for_log "$target_manifest")"
 }
 
 export_state_for_target() {

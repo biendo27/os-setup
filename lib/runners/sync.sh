@@ -29,6 +29,16 @@ run_sync() {
   done
 
   ensure_cmd jq
+
+  if [[ "$mode" == "apply" ]] && is_personal_workspace_mode; then
+    local current_dir core_root
+    current_dir="$(pwd -P)"
+    core_root="$(ossetup_core_root)"
+    if path_is_within "$current_dir" "$core_root"; then
+      die "$E_PRECHECK" "sync apply is personal-only in personal-overrides mode; run this command from your personal repo"
+    fi
+  fi
+
   acquire_lock
 
   OSSETUP_SYNC_DOTFILES_CHANGED=0

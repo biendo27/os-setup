@@ -7,8 +7,26 @@ OSSETUP_COMMON_SH=1
 
 OSSETUP_ROOT="${OSSETUP_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 OSSETUP_HOME="${OSSETUP_HOME_DIR:-$HOME}"
-OSSETUP_REPORTS_DIR="${OSSETUP_REPORTS_DIR:-$OSSETUP_ROOT/reports}"
-OSSETUP_LOCK_DIR="${OSSETUP_LOCK_DIR:-$OSSETUP_ROOT/.ossetup.lock}"
+
+if [[ -n "${OSSETUP_REPORTS_DIR+x}" ]]; then
+  OSSETUP_REPORTS_DIR_IS_DEFAULT=0
+else
+  OSSETUP_REPORTS_DIR="$OSSETUP_ROOT/reports"
+  OSSETUP_REPORTS_DIR_IS_DEFAULT=1
+fi
+
+if [[ -n "${OSSETUP_LOCK_DIR+x}" ]]; then
+  OSSETUP_LOCK_DIR_IS_DEFAULT=0
+else
+  OSSETUP_LOCK_DIR="$OSSETUP_ROOT/.ossetup.lock"
+  OSSETUP_LOCK_DIR_IS_DEFAULT=1
+fi
+
+OSSETUP_WORKSPACE_MODE="${OSSETUP_WORKSPACE_MODE:-single-repo}"
+OSSETUP_CORE_ROOT="${OSSETUP_CORE_ROOT:-$OSSETUP_ROOT}"
+OSSETUP_PERSONAL_ROOT="${OSSETUP_PERSONAL_ROOT:-$OSSETUP_ROOT}"
+OSSETUP_DATA_ROOT="${OSSETUP_DATA_ROOT:-$OSSETUP_ROOT}"
+OSSETUP_WORKSPACE_USER_ID="${OSSETUP_WORKSPACE_USER_ID:-}"
 
 readonly E_USAGE=64
 readonly E_PRECHECK=65
@@ -138,6 +156,63 @@ detect_target() {
   fi
 
   die "$E_TARGET" "unsupported target; use --target linux-debian or macos"
+}
+
+is_personal_workspace_mode() {
+  [[ "${OSSETUP_WORKSPACE_MODE:-single-repo}" == "personal-overrides" ]]
+}
+
+set_workspace_roots() {
+  local mode="$1"
+  local core_root="$2"
+  local personal_root="$3"
+  local user_id="${4:-}"
+
+  OSSETUP_WORKSPACE_MODE="$mode"
+  OSSETUP_CORE_ROOT="$core_root"
+  OSSETUP_PERSONAL_ROOT="$personal_root"
+  OSSETUP_DATA_ROOT="$personal_root"
+  OSSETUP_WORKSPACE_USER_ID="$user_id"
+
+  if [[ "${OSSETUP_REPORTS_DIR_IS_DEFAULT:-1}" == "1" ]]; then
+    OSSETUP_REPORTS_DIR="$OSSETUP_DATA_ROOT/reports"
+  fi
+  if [[ "${OSSETUP_LOCK_DIR_IS_DEFAULT:-1}" == "1" ]]; then
+    OSSETUP_LOCK_DIR="$OSSETUP_DATA_ROOT/.ossetup.lock"
+  fi
+}
+
+ossetup_core_root() {
+  printf '%s\n' "${OSSETUP_CORE_ROOT:-$OSSETUP_ROOT}"
+}
+
+ossetup_personal_root() {
+  printf '%s\n' "${OSSETUP_PERSONAL_ROOT:-$OSSETUP_ROOT}"
+}
+
+ossetup_write_root() {
+  if is_personal_workspace_mode; then
+    ossetup_personal_root
+    return 0
+  fi
+  printf '%s\n' "$OSSETUP_ROOT"
+}
+
+workspace_user_id() {
+  printf '%s\n' "${OSSETUP_WORKSPACE_USER_ID:-}"
+}
+
+path_is_within() {
+  local path="$1"
+  local root="$2"
+  case "$path" in
+    "$root"|"$root"/*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
 }
 
 run_hook_dir() {

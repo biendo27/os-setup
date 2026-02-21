@@ -2,6 +2,11 @@
 
 Declarative bootstrap for your full developer experience on Linux Debian/Ubuntu and macOS.
 
+Supports two operating modes:
+
+- Single-repo mode (legacy): all reads/writes happen in one repo.
+- Personal-overrides mode: shared core repo + personal repo writes only.
+
 ## One-liner bootstrap
 
 ```bash
@@ -15,6 +20,33 @@ OSSETUP_REPO_URL="https://github.com/biendo27/os-setup.git" \
 OSSETUP_REPO_REF="main" \
 curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-bootstrap.sh | bash
 ```
+
+## Personal-overrides mode (`core + personal`)
+
+Personal-overrides mode keeps your personal sync data out of the shared core repo.
+
+Create a workspace config in your personal repo root:
+
+```json
+{
+  "schema_version": 1,
+  "core_repo_url": "https://github.com/biendo27/os-setup.git",
+  "core_repo_ref": "main",
+  "core_repo_path": "../OSSetup",
+  "user_id": "emanon",
+  "mode": "personal-overrides"
+}
+```
+
+Runtime behavior in this mode:
+
+- `install` reads merged desired state from `core -> target -> core-host -> user -> personal-host`.
+- `sync --apply` writes only to personal repo.
+- `sync-all --scope state --apply` writes state snapshots to personal repo and updates personal user layer.
+- `promote` is preview-only (`--apply` is blocked).
+- `verify --strict` compares merged manifest against personal state snapshots.
+
+The CLI auto-discovers `.ossetup-workspace.json` from current working directory upward. You can also set `OSSETUP_WORKSPACE_FILE=/path/to/.ossetup-workspace.json`.
 
 ## Local usage
 
@@ -43,6 +75,7 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - Cleanup inventory: [`docs/cleanup/cleanup-inventory.md`](docs/cleanup/cleanup-inventory.md)
 - Runbooks:
   - [`docs/runbooks/DEBUGGING.md`](docs/runbooks/DEBUGGING.md)
+  - [`docs/runbooks/PERSONAL-WORKSPACE.md`](docs/runbooks/PERSONAL-WORKSPACE.md)
   - [`docs/runbooks/RELEASE.md`](docs/runbooks/RELEASE.md)
 - ADR roadmap:
   - [`docs/adr/ADR-0001-manifest-layering-roadmap.md`](docs/adr/ADR-0001-manifest-layering-roadmap.md)
@@ -69,10 +102,13 @@ curl -fsSL https://raw.githubusercontent.com/biendo27/os-setup/main/bin/raw-boot
 - `install`: installs packages, dotfiles, functions, mise, Android SDK, npm globals, and Bitwarden checks
   - `--host <id|auto>` resolves host overlay (`auto` uses normalized hostname)
 - `sync`: syncs local HOME config back into repo (`--preview` by default)
+  - In personal-overrides mode, writes only to personal repo and rejects `--apply` when run from core repo.
 - `sync-all`: runs `sync` and/or refreshes software manifests from the current machine
   - `--scope config|state|all` (default `all`)
+  - In personal-overrides mode, state files are written under personal `manifests/state/<target>/*`.
 - `promote`: promotes captured `manifests/state/<target>/*` snapshots into `manifests/layers/targets/<target>.yaml`
   - `--preview` shows plan only, `--apply` writes manifests
+  - In personal-overrides mode, `--apply` is blocked (preview-only).
 - `update-globals`: updates global packages managed by `npm`, `pnpm`, `yarn`, `pipx`, and `dart pub global`
   - Supports `--dry-run` to preview commands without executing
   - Interactive confirmation `[Y/n]` (default Yes), use `-y`/`--yes` to skip prompts
@@ -106,6 +142,12 @@ Manifest files use JSON-compatible YAML syntax and currently live under:
 - `manifests/layers/core.yaml`
 - `manifests/layers/targets/*.yaml`
 - `manifests/layers/hosts/*.yaml`
+
+In personal-overrides mode, personal repo can also include:
+
+- `manifests/layers/users/<user-id>.yaml`
+- `manifests/layers/hosts/<host-id>.yaml`
+- `manifests/state/<target>/*`
 
 ## Global Command
 

@@ -8,6 +8,7 @@
     "$root/docs/architecture/DATA-CONTRACTS.md"
     "$root/docs/agents/AGENT_CONTEXT.md"
     "$root/docs/runbooks/DEBUGGING.md"
+    "$root/docs/runbooks/PERSONAL-WORKSPACE.md"
     "$root/docs/runbooks/RELEASE.md"
     "$root/docs/adr/ADR-0001-manifest-layering-roadmap.md"
     "$root/docs/adr/ADR-0002-command-contract-expansion-roadmap.md"
@@ -39,6 +40,8 @@
   run rg -n 'docs/agents/AGENT_CONTEXT.md' "$readme"
   [ "$status" -eq 0 ]
   run rg -n 'docs/runbooks/DEBUGGING.md' "$readme"
+  [ "$status" -eq 0 ]
+  run rg -n 'docs/runbooks/PERSONAL-WORKSPACE.md' "$readme"
   [ "$status" -eq 0 ]
   run rg -n 'docs/runbooks/RELEASE.md' "$readme"
   [ "$status" -eq 0 ]
