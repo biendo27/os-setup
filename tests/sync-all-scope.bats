@@ -1,9 +1,12 @@
 #!/usr/bin/env bats
 
+source "$BATS_TEST_DIRNAME/helpers/workspace-fixture.bash"
+
 setup() {
   work="$BATS_TEST_TMPDIR/work"
   cp -R "$BATS_TEST_DIRNAME/.." "$work"
   chmod +x "$work/bin/ossetup" 2>/dev/null || true
+  setup_workspace_in_repo "$work"
   export OSSETUP_HOME_DIR="$BATS_TEST_TMPDIR/home"
   mkdir -p "$OSSETUP_HOME_DIR/.config"
   cp "$work/dotfiles/.zshrc" "$OSSETUP_HOME_DIR/.zshrc"
@@ -11,6 +14,10 @@ setup() {
 
 target_manifest_for_state() {
   printf '%s\n' "$work/manifests/layers/targets/linux-debian.yaml"
+}
+
+user_manifest_for_state() {
+  printf '%s\n' "$work/manifests/layers/users/test-user.yaml"
 }
 
 write_fake_state_tools() {
@@ -87,10 +94,10 @@ EOS
   after_dotfile="$(sha256sum "$work/dotfiles/.zshrc" | awk '{print $1}')"
   [ "$before_dotfile" = "$after_dotfile" ]
 
-  local target_manifest
-  target_manifest="$(target_manifest_for_state)"
-  [ "$(jq -r '.packages.apt[] | select(. == "state-only-cli")' "$target_manifest")" = "state-only-cli" ]
-  [ "$(jq -r '.npm_globals[] | select(. == "state-npm-cli")' "$target_manifest")" = "state-npm-cli" ]
+  local user_manifest
+  user_manifest="$(user_manifest_for_state)"
+  [ "$(jq -r '.packages.apt[] | select(. == "state-only-cli")' "$user_manifest")" = "state-only-cli" ]
+  [ "$(jq -r '.npm_globals[] | select(. == "state-npm-cli")' "$user_manifest")" = "state-npm-cli" ]
 }
 
 @test "sync-all rejects invalid scope value" {

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This file is the fast handoff context for agents implementing, debugging, and extending OSSetup while preserving architecture contracts.
+Fast handoff context for agents implementing, debugging, and extending OSSetup while preserving architecture contracts.
 
 ## Read Order (Mandatory)
 
@@ -17,41 +17,32 @@ This file is the fast handoff context for agents implementing, debugging, and ex
 - CLI: `bin/ossetup`
 - Runner modules: `lib/runners/*.sh`
 - Provider modules: `lib/providers/*.sh`
-- Manifest contracts:
-  - `manifests/profiles/*.yaml`
-  - `manifests/layers/core.yaml`
-  - `manifests/layers/targets/*.yaml`
-  - `manifests/layers/hosts/*.yaml`
-  - personal workspace config: `.ossetup-workspace.json` (optional)
+- Workspace contract: `.ossetup-workspace.json` (required for runtime commands)
+
+## Data Ownership
+
+- Core repo: engine/tests/docs only.
+- Personal repo: runtime data (`manifests/`, `dotfiles/`, `functions/`, `hooks/`, `state/`).
 
 ## Allowed Mutation Surfaces
 
-- Declarative configs under `manifests/`
 - Runtime/provider logic under `lib/`
 - CLI contracts under `bin/ossetup`
 - Tests under `tests/`
 - Documentation under `docs/` and root `README.md`
-
-## Cleanup Workflow
-
-- Use `docs/cleanup/cleanup-inventory.md` as source of truth.
-- Each candidate must be tagged `remove-now`, `archive-first`, or `keep`.
-- Apply removal only after dependency checks and test coverage confirmation.
-- Record outcomes in `CHANGELOG.md` and architecture/runbook docs.
+- Personal-bootstrap guidance/scripts under runbooks/templates
 
 ## Verification Commands
 
 ```bash
 bats tests
 for f in $(rg --files -g '*.sh' bin lib hooks popos-migration/scripts tests) bin/ossetup; do bash -n "$f"; done
-for f in manifests/*.yaml manifests/profiles/*.yaml manifests/layers/core.yaml manifests/layers/targets/*.yaml; do jq -e . "$f" >/dev/null; done
 ```
 
 ## Do Not Break
 
 - Preview/apply mutation boundaries.
 - Exit code semantics in `lib/core/common.sh`.
-- Layered desired state precedence:
-  - single-repo: `core -> target -> host`
-  - personal-overrides: `core -> target -> core-host -> user -> personal-host`
+- Layered precedence in personal repo: `core -> target -> user -> host`.
+- Workspace-required runtime behavior.
 - Secrets policy (reference-only, no plaintext secrets in repo).

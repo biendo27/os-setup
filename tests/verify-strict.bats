@@ -1,9 +1,12 @@
 #!/usr/bin/env bats
 
+source "$BATS_TEST_DIRNAME/helpers/workspace-fixture.bash"
+
 setup() {
   work="$BATS_TEST_TMPDIR/work"
   cp -R "$BATS_TEST_DIRNAME/.." "$work"
   chmod +x "$work/bin/ossetup" 2>/dev/null || true
+  setup_workspace_in_repo "$work"
 
   export OSSETUP_HOME_DIR="$BATS_TEST_TMPDIR/home"
   mkdir -p "$OSSETUP_HOME_DIR"

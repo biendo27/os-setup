@@ -75,7 +75,9 @@ JSON
 
 @test "layers resolver applies personal user and host overlays after core layers" {
   local personal="$BATS_TEST_TMPDIR/personal"
-  mkdir -p "$personal/manifests/layers/users" "$personal/manifests/layers/hosts"
+  mkdir -p "$personal/manifests/layers/targets" "$personal/manifests/layers/users" "$personal/manifests/layers/hosts"
+  cp "$work/manifests/layers/core.yaml" "$personal/manifests/layers/core.yaml"
+  cp "$work/manifests/layers/targets/linux-debian.yaml" "$personal/manifests/layers/targets/linux-debian.yaml"
 
   cat > "$personal/manifests/layers/users/emanon.yaml" <<'JSON'
 {
@@ -95,15 +97,15 @@ JSON
     "level": "personal-host"
   },
   "packages": {
-    "apt": ["fd-find"]
+    "apt": ["git", "zsh", "fd-find"]
   },
-  "npm_globals": ["personal-host-cli"]
+  "npm_globals": ["host-cli", "personal-host-cli"]
 }
 JSON
 
   run env \
     OSSETUP_ROOT="$work" \
-    OSSETUP_WORKSPACE_MODE="personal-overrides" \
+    OSSETUP_WORKSPACE_MODE="personal-only" \
     OSSETUP_CORE_ROOT="$work" \
     OSSETUP_PERSONAL_ROOT="$personal" \
     OSSETUP_WORKSPACE_USER_ID="emanon" \
@@ -115,6 +117,6 @@ JSON
   [ "$status" -eq 0 ]
 
   [ "$(jq -r '.meta.level' <<<"$output")" = "personal-host" ]
-  [ "$(jq -r '.packages.apt | join(",")' <<<"$output")" = "curl,jq,git,zsh,fzf,fd-find" ]
-  [ "$(jq -r '.npm_globals | join(",")' <<<"$output")" = "core-cli,target-cli,host-cli,user-cli,personal-host-cli" ]
+  [ "$(jq -r '.packages.apt | join(",")' <<<"$output")" = "curl,jq,git,fzf,zsh,fd-find" ]
+  [ "$(jq -r '.npm_globals | join(",")' <<<"$output")" = "core-cli,target-cli,user-cli,host-cli,personal-host-cli" ]
 }

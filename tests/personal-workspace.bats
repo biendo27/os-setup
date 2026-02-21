@@ -1,28 +1,18 @@
 #!/usr/bin/env bats
 
+source "$BATS_TEST_DIRNAME/helpers/workspace-fixture.bash"
+
 setup() {
   core="$BATS_TEST_TMPDIR/core"
   personal="$BATS_TEST_TMPDIR/personal"
   cp -R "$BATS_TEST_DIRNAME/.." "$core"
-  mkdir -p "$personal"
   chmod +x "$core/bin/ossetup" 2>/dev/null || true
+
+  setup_personal_workspace_from_core_repo "$core" "$personal" "personal-only"
 
   export OSSETUP_HOME_DIR="$BATS_TEST_TMPDIR/home"
   mkdir -p "$OSSETUP_HOME_DIR/.config"
-  cp "$core/dotfiles/.zshrc" "$OSSETUP_HOME_DIR/.zshrc"
-
-  cat > "$personal/.ossetup-workspace.json" <<'JSON'
-{
-  "schema_version": 1,
-  "core_repo_url": "https://github.com/biendo27/os-setup.git",
-  "core_repo_ref": "main",
-  "core_repo_path": "../core",
-  "user_id": "emanon",
-  "mode": "personal-overrides"
-}
-JSON
-
-  export OSSETUP_WORKSPACE_FILE="$personal/.ossetup-workspace.json"
+  cp "$personal/dotfiles/.zshrc" "$OSSETUP_HOME_DIR/.zshrc"
 }
 
 write_fake_state_tools() {
@@ -106,7 +96,7 @@ EOS
 }
 
 @test "install prefers personal dotfile override over core" {
-  cat > "$core/manifests/profiles/personal-test.yaml" <<'JSON'
+  cat > "$personal/manifests/profiles/personal-test.yaml" <<'JSON'
 {
   "name": "personal-test",
   "modules": {
@@ -131,7 +121,7 @@ JSON
   grep -q '^personal-version$' "$OSSETUP_HOME_DIR/.zshrc"
 }
 
-@test "promote apply is blocked in personal mode" {
+@test "promote apply mutates personal target layer in personal mode" {
   mkdir -p "$personal/manifests/state/linux-debian"
   printf 'curl\ngit\n' > "$personal/manifests/state/linux-debian/apt-manual.txt"
   : > "$personal/manifests/state/linux-debian/flatpak-apps.txt"
@@ -139,8 +129,8 @@ JSON
   : > "$personal/manifests/state/linux-debian/npm-globals.txt"
 
   run bash -lc "cd '$personal' && '$core/bin/ossetup' promote --apply --target linux-debian"
-  [ "$status" -eq 64 ]
-  [[ "$output" == *"preview-only"* ]]
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"PROMOTE APPLY"* ]]
 }
 
 @test "workspace config is auto-discovered from current directory" {
@@ -148,7 +138,7 @@ JSON
 
   run bash -lc "cd '$personal' && '$core/bin/ossetup' doctor"
   [ "$status" -eq 0 ]
-  [[ "$output" == *"workspace mode: personal-overrides"* ]]
+  [[ "$output" == *"workspace mode: personal-only"* ]]
 }
 
 @test "sync apply guard works when core path uses symlink alias" {

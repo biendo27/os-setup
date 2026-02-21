@@ -22,7 +22,7 @@ else
   OSSETUP_LOCK_DIR_IS_DEFAULT=1
 fi
 
-OSSETUP_WORKSPACE_MODE="${OSSETUP_WORKSPACE_MODE:-single-repo}"
+OSSETUP_WORKSPACE_MODE="${OSSETUP_WORKSPACE_MODE:-}"
 OSSETUP_CORE_ROOT="${OSSETUP_CORE_ROOT:-$OSSETUP_ROOT}"
 OSSETUP_PERSONAL_ROOT="${OSSETUP_PERSONAL_ROOT:-$OSSETUP_ROOT}"
 OSSETUP_DATA_ROOT="${OSSETUP_DATA_ROOT:-$OSSETUP_ROOT}"
@@ -159,7 +159,7 @@ detect_target() {
 }
 
 is_personal_workspace_mode() {
-  [[ "${OSSETUP_WORKSPACE_MODE:-single-repo}" == "personal-overrides" ]]
+  [[ "${OSSETUP_WORKSPACE_MODE:-}" == "personal-only" ]]
 }
 
 set_workspace_roots() {
@@ -191,11 +191,7 @@ ossetup_personal_root() {
 }
 
 ossetup_write_root() {
-  if is_personal_workspace_mode; then
-    ossetup_personal_root
-    return 0
-  fi
-  printf '%s\n' "$OSSETUP_ROOT"
+  ossetup_personal_root
 }
 
 workspace_user_id() {

@@ -9,20 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Personal workspace contract support via `.ossetup-workspace.json` (`mode=personal-overrides`).
-- Personal workspace test suite:
-  - `tests/personal-workspace.bats`
-- Layer resolver coverage for personal user/host overlays:
-  - `tests/layers-resolver.bats` (new overlay case).
+- Hard-cutover workspace tests:
+  - `tests/personal-only-cutover.bats`
+- Shared test workspace helper:
+  - `tests/helpers/workspace-fixture.bash`
 
 ### Changed
 
-- `install` now resolves effective dotfiles/functions with personal override fallback to core when personal workspace mode is enabled.
-- `sync --apply` now writes only to personal repo in personal workspace mode and rejects apply when run from core repo.
-- `sync-all --scope state --apply` now writes state snapshots to personal repo and updates personal user layer manifest in personal workspace mode.
-- `verify --strict` now compares resolved manifest against state snapshots from the active write repo (personal repo in personal workspace mode).
-- `promote` is now preview-only in personal workspace mode (`--apply` blocked).
-- Architecture, invariants, data contracts, and README docs were updated for `core + personal` operation.
+- Runtime commands now require `.ossetup-workspace.json` and reject missing workspace config.
+- Canonical workspace mode is now `personal-only`; `personal-overrides` is accepted as alias.
+- Runtime data resolution is personal-only (profiles/layers/dotfiles/secrets/hooks/functions/state).
+- `install` and `verify` no longer fallback to core data paths for dotfiles/functions.
+- `sync --apply` remains personal-only and still rejects apply when run from core repo path.
+- `promote --apply` is enabled in personal mode and writes personal target layers.
+- Architecture, invariants, data contracts, runbook, README, and agent context were updated for hard cutover.
 
 ## [1.0.0] - 2026-02-20
 

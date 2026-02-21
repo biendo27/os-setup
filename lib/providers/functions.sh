@@ -10,9 +10,8 @@ source "$OSSETUP_ROOT/lib/core/manifest.sh"
 
 apply_functions() {
   local dry_run="$1"
-  local repo_rel home_dir core_dir personal_dir
+  local repo_rel home_dir personal_dir
   repo_rel="$(function_sync_repo_dir)"
-  core_dir="$(repo_path_in_core "$repo_rel")"
   personal_dir="$(repo_path_in_personal "$repo_rel")"
   home_dir="$(expand_home_path "$(function_sync_home_dir)")"
 
@@ -23,10 +22,7 @@ apply_functions() {
 
   local merged_dir
   merged_dir="$(mktemp -d)"
-  if [[ -d "$core_dir" ]]; then
-    cp -f "$core_dir"/* "$merged_dir" 2>/dev/null || true
-  fi
-  if is_personal_workspace_mode && [[ -d "$personal_dir" ]]; then
+  if [[ -d "$personal_dir" ]]; then
     cp -f "$personal_dir"/* "$merged_dir" 2>/dev/null || true
   fi
 
@@ -46,10 +42,9 @@ apply_functions() {
 
 sync_functions() {
   local mode="$1"
-  local repo_rel repo_dir home_dir core_dir
+  local repo_rel repo_dir home_dir
   repo_rel="$(function_sync_repo_dir)"
   repo_dir="$(repo_write_path "$repo_rel")"
-  core_dir="$(repo_path_in_core "$repo_rel")"
   home_dir="$(expand_home_path "$(function_sync_home_dir)")"
 
   if [[ ! -d "$home_dir" ]]; then
@@ -68,9 +63,6 @@ sync_functions() {
 
     local baseline_file
     baseline_file="$repo_file"
-    if is_personal_workspace_mode && [[ ! -f "$repo_file" ]]; then
-      baseline_file="$core_dir/$base"
-    fi
 
     if [[ -f "$baseline_file" ]] && files_equal "$file" "$baseline_file"; then
       continue

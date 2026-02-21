@@ -39,14 +39,10 @@ run_doctor() {
   local target
   target="$(detect_target auto)"
 
-  if is_personal_workspace_mode; then
-    info "workspace mode: personal-overrides"
-    info "workspace file: ${OSSETUP_WORKSPACE_FILE_RESOLVED:-unknown}"
-    info "core repo: $(ossetup_core_root)"
-    info "personal repo: $(ossetup_personal_root)"
-  else
-    info "workspace mode: single-repo"
-  fi
+  info "workspace mode: personal-only"
+  info "workspace file: ${OSSETUP_WORKSPACE_FILE_RESOLVED:-unknown}"
+  info "core repo: $(ossetup_core_root)"
+  info "personal repo: $(ossetup_personal_root)"
 
   info "target: $target"
 

@@ -144,10 +144,6 @@ run_promote() {
 
   [[ -n "$target" ]] || die "$E_USAGE" "--target is required for promote"
 
-  if is_personal_workspace_mode && [[ "$mode" == "apply" ]]; then
-    die "$E_USAGE" "promote is preview-only in personal-overrides mode"
-  fi
-
   case "$scope" in
     packages|npm_globals|all)
       ;;

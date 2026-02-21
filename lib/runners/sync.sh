@@ -35,7 +35,7 @@ run_sync() {
     current_dir="$(pwd -P)"
     core_root="$(ossetup_core_root)"
     if path_is_within "$current_dir" "$core_root"; then
-      die "$E_PRECHECK" "sync apply is personal-only in personal-overrides mode; run this command from your personal repo"
+      die "$E_PRECHECK" "sync apply is personal-only; run this command from your personal repo"
     fi
   fi
 
