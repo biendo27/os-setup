@@ -21,7 +21,7 @@ apply_dotfiles() {
     optional="$(jq -r '.optional // false' <<<"$entry")"
 
     local src dst
-    src="$OSSETUP_ROOT/$repo_rel"
+    src="$(resolve_repo_source_path "$repo_rel" "$entry_type")"
     dst="$(expand_home_path "$home_rel")"
 
     case "$entry_type" in
@@ -84,7 +84,7 @@ sync_dotfiles() {
     optional="$(jq -r '.optional // false' <<<"$entry")"
 
     local repo_file home_file
-    repo_file="$OSSETUP_ROOT/$repo_rel"
+    repo_file="$(repo_write_path "$repo_rel")"
     home_file="$(expand_home_path "$home_rel")"
 
     case "$entry_type" in
@@ -98,7 +98,13 @@ sync_dotfiles() {
           continue
         fi
 
-        if files_equal "$home_file" "$repo_file"; then
+        local baseline_file
+        baseline_file="$repo_file"
+        if is_personal_workspace_mode && [[ ! -f "$repo_file" ]]; then
+          baseline_file="$(repo_path_in_core "$repo_rel")"
+        fi
+
+        if [[ -f "$baseline_file" ]] && files_equal "$home_file" "$baseline_file"; then
           info "UNCHANGED $home_rel"
           continue
         fi
@@ -123,7 +129,13 @@ sync_dotfiles() {
           continue
         fi
 
-        if [[ -d "$repo_file" ]] && diff -qr "$home_file" "$repo_file" >/dev/null 2>&1; then
+        local baseline_dir
+        baseline_dir="$repo_file"
+        if is_personal_workspace_mode && [[ ! -d "$repo_file" ]]; then
+          baseline_dir="$(repo_path_in_core "$repo_rel")"
+        fi
+
+        if [[ -d "$baseline_dir" ]] && diff -qr "$home_file" "$baseline_dir" >/dev/null 2>&1; then
           info "UNCHANGED $home_rel"
           continue
         fi

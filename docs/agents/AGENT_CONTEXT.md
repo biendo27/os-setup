@@ -22,6 +22,7 @@ This file is the fast handoff context for agents implementing, debugging, and ex
   - `manifests/layers/core.yaml`
   - `manifests/layers/targets/*.yaml`
   - `manifests/layers/hosts/*.yaml`
+  - personal workspace config: `.ossetup-workspace.json` (optional)
 
 ## Allowed Mutation Surfaces
 
@@ -50,5 +51,7 @@ for f in manifests/*.yaml manifests/profiles/*.yaml manifests/layers/core.yaml m
 
 - Preview/apply mutation boundaries.
 - Exit code semantics in `lib/core/common.sh`.
-- Layered-only desired state contract (`core -> target -> host`).
+- Layered desired state precedence:
+  - single-repo: `core -> target -> host`
+  - personal-overrides: `core -> target -> core-host -> user -> personal-host`
 - Secrets policy (reference-only, no plaintext secrets in repo).

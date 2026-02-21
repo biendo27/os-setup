@@ -5,6 +5,9 @@ OSSETUP_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export OSSETUP_ROOT
 
 source "$OSSETUP_ROOT/lib/core/common.sh"
+source "$OSSETUP_ROOT/lib/core/workspace.sh"
+init_workspace_context
+
 source "$OSSETUP_ROOT/lib/runners/install.sh"
 source "$OSSETUP_ROOT/lib/runners/sync.sh"
 source "$OSSETUP_ROOT/lib/runners/sync-all.sh"

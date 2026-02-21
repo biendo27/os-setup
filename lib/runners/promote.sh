@@ -8,13 +8,27 @@ OSSETUP_RUNNER_PROMOTE_SH=1
 source "$OSSETUP_ROOT/lib/core/common.sh"
 source "$OSSETUP_ROOT/lib/core/manifest.sh"
 
+promote_log_path() {
+  local path="$1"
+  local root
+  for root in "$(ossetup_write_root)" "$(ossetup_core_root)" "$OSSETUP_ROOT"; do
+    if path_is_within "$path" "$root"; then
+      printf '%s\n' "${path#$root/}"
+      return 0
+    fi
+  done
+  printf '%s\n' "$path"
+}
+
 resolve_promote_state_dir() {
   local target="$1"
   local from_state="$2"
+  local base_root
+  base_root="$(ossetup_write_root)"
 
   if [[ "$from_state" == "latest" ]]; then
     local base_dir
-    base_dir="$OSSETUP_ROOT/manifests/state/$target"
+    base_dir="$base_root/manifests/state/$target"
     [[ -d "$base_dir" ]] || die "$E_PRECHECK" "state directory missing: $base_dir"
 
     if find "$base_dir" -maxdepth 1 -type f -name '*.txt' | grep -q .; then
@@ -33,7 +47,7 @@ resolve_promote_state_dir() {
   if [[ "$from_state" = /* ]]; then
     explicit_dir="$from_state"
   else
-    explicit_dir="$OSSETUP_ROOT/$from_state"
+    explicit_dir="$base_root/$from_state"
   fi
 
   [[ -d "$explicit_dir" ]] || die "$E_PRECHECK" "state directory missing: $explicit_dir"
@@ -130,6 +144,10 @@ run_promote() {
 
   [[ -n "$target" ]] || die "$E_USAGE" "--target is required for promote"
 
+  if is_personal_workspace_mode && [[ "$mode" == "apply" ]]; then
+    die "$E_USAGE" "promote is preview-only in personal-overrides mode"
+  fi
+
   case "$scope" in
     packages|npm_globals|all)
       ;;
@@ -171,7 +189,7 @@ run_promote() {
   fi
 
   if [[ "$mode" == "preview" ]]; then
-    info "PROMOTE PREVIEW target=$resolved_target scope=$scope state=${state_dir#$OSSETUP_ROOT/}"
+    info "PROMOTE PREVIEW target=$resolved_target scope=$scope state=$(promote_log_path "$state_dir")"
     if [[ "$(jq -S . <<<"$current_json")" == "$(jq -S . <<<"$proposed_json")" ]]; then
       info "promote preview: no changes"
     fi
@@ -183,5 +201,5 @@ run_promote() {
   jq . <<<"$proposed_json" > "$tmp"
   mv "$tmp" "$target_manifest"
 
-  info "PROMOTE APPLY target=$resolved_target scope=$scope state=${state_dir#$OSSETUP_ROOT/}"
+  info "PROMOTE APPLY target=$resolved_target scope=$scope state=$(promote_log_path "$state_dir")"
 }

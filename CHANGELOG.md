@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Personal workspace contract support via `.ossetup-workspace.json` (`mode=personal-overrides`).
+- Personal workspace test suite:
+  - `tests/personal-workspace.bats`
+- Layer resolver coverage for personal user/host overlays:
+  - `tests/layers-resolver.bats` (new overlay case).
+
+### Changed
+
+- `install` now resolves effective dotfiles/functions with personal override fallback to core when personal workspace mode is enabled.
+- `sync --apply` now writes only to personal repo in personal workspace mode and rejects apply when run from core repo.
+- `sync-all --scope state --apply` now writes state snapshots to personal repo and updates personal user layer manifest in personal workspace mode.
+- `verify --strict` now compares resolved manifest against state snapshots from the active write repo (personal repo in personal workspace mode).
+- `promote` is now preview-only in personal workspace mode (`--apply` blocked).
+- Architecture, invariants, data contracts, and README docs were updated for `core + personal` operation.
+
 ## [1.0.0] - 2026-02-20
 
 ### Changed

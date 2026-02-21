@@ -2,7 +2,21 @@
 
 ## Purpose
 
-Define contract boundaries for desired state and observed state snapshots in the layered-only model.
+Define contract boundaries for desired state and observed state snapshots in layered runtime modes.
+
+## Workspace Config (`.ossetup-workspace.json`)
+
+- Scope: enables `personal-overrides` mode from a personal repo.
+- Contract:
+  - `schema_version` (number)
+  - `mode` (`personal-overrides` | other/absent -> single-repo)
+  - `core_repo_path` (string, required in `personal-overrides`)
+  - `user_id` (string, required in `personal-overrides`)
+  - `core_repo_url` (string, optional metadata)
+  - `core_repo_ref` (string, optional metadata)
+- Behavior:
+  - CLI auto-discovers this file from current directory upward.
+  - `OSSETUP_WORKSPACE_FILE` can point to an explicit file path.
 
 ## Profiles (`manifests/profiles/*.yaml`)
 
@@ -42,9 +56,23 @@ Define contract boundaries for desired state and observed state snapshots in the
   - normalized lowercase
   - regex: `[a-z0-9][a-z0-9._-]{0,62}`
 
+## Personal User Layer (`manifests/layers/users/<user-id>.yaml`)
+
+- Scope: user-specific overlay in `personal-overrides` mode.
+- Contract:
+  - Same shape as target/core layer (`packages`, `npm_globals`, optional metadata keys).
+
+## Personal Host Layer (`manifests/layers/hosts/<host-id>.yaml` in personal repo)
+
+- Scope: machine-specific overlay in `personal-overrides` mode.
+- Contract:
+  - Same shape as target/core layer (`packages`, `npm_globals`, optional metadata keys).
+
 ## Layer Merge Rules
 
-1. Precedence is deterministic: `core -> target -> host`.
+1. Precedence is deterministic:
+   - single-repo: `core -> target -> host`
+   - personal-overrides: `core -> target -> core-host -> user -> personal-host`
 2. Object values merge recursively.
 3. Array values merge by ordered union (left to right, de-duplicated).
 4. Scalar/non-object values from later layer override earlier layer.
@@ -90,6 +118,7 @@ Define contract boundaries for desired state and observed state snapshots in the
 - Behavior:
   - produced by `sync-all` state export provider.
   - consumed by `promote` and `verify --strict`.
+  - in `personal-overrides` mode, snapshots are read/written from personal repo.
 
 ## Change Management
 

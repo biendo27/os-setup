@@ -97,6 +97,7 @@ shellcheck -S error $(rg -l '^#!/usr/bin/env bash' bin lib hooks popos-migration
    - `docs/architecture/DATA-CONTRACTS.md`
    - `docs/agents/AGENT_CONTEXT.md`
    - `docs/runbooks/DEBUGGING.md`
+   - `docs/runbooks/PERSONAL-WORKSPACE.md`
    - `docs/runbooks/RELEASE.md`
    - `docs/adr/ADR-0001-manifest-layering-roadmap.md`
    - `docs/adr/ADR-0002-command-contract-expansion-roadmap.md`
